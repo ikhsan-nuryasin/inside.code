@@ -10,6 +10,11 @@
 .env.test
 .env.*.local
 
+# Local env file/folder without dot
+env
+env/
+**/env/
+
 # Node / npm / pnpm / yarn
 node_modules/
 npm-debug.log*
@@ -93,20 +98,9 @@ secrets/
 !.env.example
 !.env.*.example
 
-# Python cache (in case utility scripts are added later)
+# Python cache
 __pycache__/
 *.py[cod]
 
 # Windows local files
 *.lnk
-
-# ============================================
-# IMPORTANT:
-# Never commit:
-# - .env / .env.local
-# - Supabase service_role key
-# - Turnstile secret key
-# - VAPID private key
-# - webhook secrets
-# - database passwords
-# ============================================
