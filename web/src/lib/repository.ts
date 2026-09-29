@@ -13,7 +13,7 @@ import {
 } from './demo';
 import type {
   AdminNote, Album, Announcement, Assignment, CashAccount, CashDue, CashPayment, CashSummary,
-  CashTransaction, ChecklistItem, ChecklistProgress, ClassMember, ClassRecord, ClassPosition, ClassPositionRecord,
+  CashTransaction, CashMonthlySummary, ChecklistItem, ChecklistProgress, ClassMember, ClassRecord, ClassPosition, ClassPositionRecord,
   AssignmentFile, FileRecord, ForumPost, ForumReport, ForumTopic, GroupMember, GroupRecord, GroupTask, Material, MaterialFile,
   Notification, PersonalNote, Photo, Poll, PollOption, Profile, Schedule, SearchResult, SharedNote, Subject,
   SyncEvent, SyncQueueItem, RandomizerHistoryRecord, ClassEvent, ClassEventType, ActivityLog, BugReport, BugReportCategory, BugSeverity,
@@ -924,3 +924,4 @@ export function subscribeRealtime(onChange: () => void) {
   const channel = client.channel('student-hub-events').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
 }
+

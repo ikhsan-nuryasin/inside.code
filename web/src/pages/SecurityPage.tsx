@@ -26,7 +26,7 @@ export function SecurityPage() {
       if (userResult.error) throw userResult.error;
       if (factorResult.error) throw factorResult.error;
       setFactors([...factorResult.data.totp, ...factorResult.data.phone] as Factor[]);
-      setAal(aalResult.data.currentLevel || 'aal1');
+      setAal(aalResult.data?.currentLevel || 'aal1');
       setEmailVerified(Boolean(userResult.data.user?.email_confirmed_at));
     } catch (e) { setError(e instanceof Error ? e.message : 'Gagal memuat keamanan akun.'); }
     finally { setLoading(false); }
@@ -91,3 +91,4 @@ export function SecurityPage() {
     <Card className="security-checklist"><div className="section-head"><div><span className="eyebrow">Checklist production</span><h3>Keamanan yang harus diaktifkan</h3></div></div><div className="security-list"><div>✓ Supabase CAPTCHA untuk sign-in/sign-up/recovery</div><div>✓ Rate limit Auth Supabase</div><div>✓ RLS di semua tabel exposed</div><div>✓ Publishable key saja di browser</div><div>✓ HTTPS + security headers</div><div>✓ MFA TOTP untuk akun yang membutuhkan keamanan ekstra</div><div>✓ Password policy + leaked-password protection di Supabase</div><div>✓ Monitoring + audit log untuk aktivitas sensitif</div></div></Card>
   </div>;
 }
+
