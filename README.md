@@ -1,28 +1,39 @@
-# Student Hub PWA v1.8.1
+# Student Hub PWA v1.8.1 — Production Clean
 
-Security hardening release: Cloudflare Turnstile, auth abuse guard, TOTP MFA, email verification guidance, secure headers, production guards, and Web Push.
+Clean production source package for the Student Hub React/Vite + Supabase PWA.
 
-# Student Hub — Hosting Ready
+## Stack
+- React 19
+- TypeScript 5.8
+- Vite 8
+- Supabase Auth, Postgres, RLS, Storage, Realtime
+- IndexedDB offline cache/outbox
+- Web Push + VAPID
+- Cloudflare Turnstile
+- Cloudflare Workers static assets + SPA fallback
 
-Student Hub is a React + Vite + Supabase PWA for university class coordination. Production release: v1.8.1 randomizer + monthly cash refinement with v1.8.0 security hardening.
-
-## Architecture
-
-- Frontend: React 19 + TypeScript + Vite 8
-- Backend: Supabase Auth + Postgres + RLS + Storage + Realtime
-- Offline: IndexedDB cache + sync outbox
-- Hosting: static hosting for `web/dist` (Vercel, Netlify, Cloudflare Pages, or cPanel/shared hosting)
-
-## Important product rules
-
+## Product rules
 - No attendance/presence module.
-- No lecturer account/module.
+- No lecturer role/module.
 - No self-service class creation.
 - No self-service class joining.
-- Classes and memberships are provisioned by an operator/database administrator.
+- Classes and memberships are provisioned by the controlled operator/database workflow.
 
-## Local development
+## Project structure
+```text
+student_hub/
+├── supabase/
+│   ├── functions/
+│   └── migrations/        # 001–027, run in order
+└── web/
+    ├── src/
+    ├── public/
+    ├── package.json
+    ├── vite.config.ts
+    └── wrangler.jsonc
+```
 
+## Local setup
 ```powershell
 cd web
 copy .env.example .env.local
@@ -32,38 +43,42 @@ npm run build
 npm run dev
 ```
 
-Demo mode:
+For production, `VITE_DEMO_MODE=false`, a valid Supabase URL/publishable key, VAPID public key, and Turnstile site key are required by the production guard.
 
-```env
-VITE_DEMO_MODE=true
-```
+## Cloudflare Workers
+Use Workers Builds with:
+- Production branch: `main`
+- Root directory: `web`
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy`
 
-Real Supabase:
-
-```env
+Set production build variables in Cloudflare:
+```text
 VITE_DEMO_MODE=false
 VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+VITE_SUPABASE_PUBLISHABLE_KEY=YOUR_PUBLISHABLE_KEY
+VITE_VAPID_PUBLIC_KEY=YOUR_VAPID_PUBLIC_KEY
+VITE_CAPTCHA_REQUIRED=true
+VITE_TURNSTILE_SITE_KEY=YOUR_TURNSTILE_SITE_KEY
 ```
 
-Never place a Supabase secret/service-role key in frontend environment variables.
+Never put service-role keys, Turnstile secret keys, VAPID private JWKs, webhook secrets, or database passwords in frontend `VITE_*` variables.
 
-## Production deployment
+See `CLOUDFLARE_WORKERS_DEPLOY.md` and `SUPABASE_PRODUCTION.md`.
 
-1. Create/configure the Supabase project.
-2. Run `supabase/migrations/*.sql` in numeric order from 001 through 020.
-3. Configure Storage and RLS through those migrations.
-4. Provision users/classes/memberships with the operator workflow.
-5. Run `npm install`, `npm run typecheck`, and `npm run build` in `web`.
-6. Deploy the contents of `web/dist` to your static host.
-7. Set production environment variables at build time on Vercel/Netlify/Cloudflare, or build locally and upload `dist` to shared hosting.
-8. Test login, RLS isolation, Storage access, PWA install/update, and offline queue before release.
+## Database
+Apply `supabase/migrations/001_*.sql` through `027_*.sql` in numeric order in the target Supabase project.
 
-See `DEPLOYMENT.md` for step-by-step hosting instructions.
+## Important cleanup
+This package intentionally excludes:
+- Git history and `.git/`
+- `.env` files and local secrets
+- `node_modules/`
+- `dist/` and caches
+- old Vercel/Netlify/cPanel hosting configs
+- historical release notes and duplicate changelogs
+- audit/verification scripts not required by the production build
+- local batch helper scripts
+- generated TypeScript build-info files
 
-## System Push Notifications
-
-v1.6.0 adds optional Web Push outside the open app. Configure VAPID + Supabase Edge Function + a `notifications` INSERT Database Webhook, then enable notifications from **Pengaturan** in the installed/HTTPS PWA.
-
-
-Production security and deployment: see `DEPLOYMENT.md`, `SUPABASE_PRODUCTION.md`, and `docs/41_V1.8.0_SECURITY_HARDENING.md`. Migrations are `001–027` and must be applied in order.
+The current Git repository can keep its existing `web/package-lock.json`; this clean source package does not fabricate a lockfile.

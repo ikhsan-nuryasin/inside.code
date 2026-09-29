@@ -2,17 +2,16 @@
 # Student Hub - Git Ignore
 # ============================================
 
-# Environment / Secrets
+# Environment / secrets
 .env
-.env.local
-.env.development
-.env.production
-.env.test
-.env.*.local
+.env.*
+!.env.example
+!.env.*.example
 
-# Local env file/folder without dot
+# Local env files/folders without dot
 env
 env/
+**/env
 **/env/
 
 # Node / npm / pnpm / yarn
@@ -24,13 +23,18 @@ pnpm-debug.log*
 .npm/
 .pnpm-store/
 
-# Vite / Build output
+# Vite / build output
 dist/
 build/
 .vite/
 .cache/
 
-# Test / Coverage
+# Wrangler / Cloudflare local files
+.wrangler/
+.dev.vars
+.dev.vars.*
+
+# Test / coverage
 coverage/
 .nyc_output/
 
@@ -39,7 +43,7 @@ coverage/
 supabase/.branches/
 supabase/.temp/
 
-# IDE / Editor
+# IDE / editor
 .vscode/
 .idea/
 *.swp
@@ -54,7 +58,7 @@ desktop.ini
 # Logs
 *.log
 
-# Temporary files
+# Temporary / backup files
 *.tmp
 *.temp
 *.bak
@@ -71,7 +75,7 @@ storage/
 user-uploads/
 generated/
 
-# Certificates / Private Keys
+# Certificates / private keys
 *.pem
 *.key
 *.p12
@@ -83,20 +87,11 @@ secrets/
 *.secret
 *.credentials
 
-# Cloudflare / deployment local files
-.wrangler/
-.dev.vars
-.dev.vars.*
-
 # Local tooling / cache
 .eslintcache
 .stylelintcache
 .parcel-cache/
 .turbo/
-
-# Keep example environment files
-!.env.example
-!.env.*.example
 
 # Python cache
 __pycache__/
@@ -104,3 +99,15 @@ __pycache__/
 
 # Windows local files
 *.lnk
+
+# Generated TypeScript build info
+*.tsbuildinfo
+
+# IMPORTANT
+# Never commit:
+# - .env / .env.local / .env.production
+# - Supabase service_role or sb_secret keys
+# - Turnstile secret key
+# - VAPID private key
+# - webhook secrets
+# - database passwords

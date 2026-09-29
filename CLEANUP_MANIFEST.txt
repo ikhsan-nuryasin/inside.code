@@ -1,0 +1,26 @@
+Student Hub v1.8.1 — Production Clean Package
+
+KEPT
+- React/Vite application source in web/src
+- PWA public assets and service worker
+- package.json and build/typecheck configuration
+- Cloudflare Workers wrangler.jsonc
+- production-guard.mjs
+- Supabase config
+- Supabase Edge Function for Web Push
+- Supabase migrations 001–027
+- VAPID generator utility
+- environment examples only
+- concise deployment/security documentation
+
+REMOVED AS NON-PRODUCTION/REDUNDANT
+- .git directory/history
+- dist, node_modules, caches, build-info
+- real .env/local environment files
+- old Vercel, Netlify and Apache/cPanel configs
+- old batch helper files
+- audit/verification scripts not required by production build
+- historical docs/changelogs/release duplicates
+- old v1.5/v1.6/v1.7 feature notes duplicated by current source
+- Supabase test-note files
+- duplicated push environment example
