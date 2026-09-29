@@ -1,0 +1,41 @@
+{
+  "name": "student-hub-pwa",
+  "private": true,
+  "version": "1.8.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run prebuild && tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -p tsconfig.app.json --noEmit",
+    "check": "npm run typecheck && npm run build",
+    "verify:features": "node scripts/full-feature-audit.mjs",
+    "verify:product": "node scripts/verify-product-rules.mjs",
+    "audit:static": "node scripts/static-audit.mjs",
+    "verify": "npm run verify:features && npm run verify:product && npm run audit:static && npm run audit:ux && npm run verify:buildfix && npm run audit:quality && npm run audit:push && npm run audit:hosting && npm run audit:security && npm run typecheck && npm run build",
+    "audit:ux": "node scripts/connected-ux-audit.mjs",
+    "verify:buildfix": "node scripts/build-fix-audit.mjs",
+    "audit:quality": "node scripts/quality-audit.mjs",
+    "audit:hosting": "node scripts/hosting-audit.mjs",
+    "prebuild": "node scripts/production-guard.mjs",
+    "build:demo": "vite build --mode demo",
+    "verify:dist": "node scripts/dist-audit.mjs",
+    "audit:push": "node scripts/push-audit.mjs",
+    "audit:security": "node scripts/security-audit.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.117.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "5.8.3",
+    "vite": "8.3.1"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
