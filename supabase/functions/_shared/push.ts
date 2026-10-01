@@ -8,6 +8,7 @@ type PushSubscriptionRow = {
   p256dh: string;
   auth: string;
   enabled: boolean;
+  fail_count: number;
   preferences: Record<string, boolean> | null;
 };
 
@@ -65,6 +66,8 @@ function appUrl(): string {
 
 function routeForNotification(n: NotificationRecord): string {
   const data = n.data ?? {};
+  const explicitUrl = typeof data.url === 'string' ? data.url.trim() : '';
+  if (explicitUrl) return explicitUrl.startsWith('#') ? explicitUrl : `#${explicitUrl.replace(/^\//, '')}`;
   const classId = typeof data.class_id === 'string' ? data.class_id : typeof data.classId === 'string' ? data.classId : '';
   const assignmentId = typeof data.assignment_id === 'string' ? data.assignment_id : typeof data.taskId === 'string' ? data.taskId : '';
   const materialId = typeof data.material_id === 'string' ? data.material_id : typeof data.materialId === 'string' ? data.materialId : '';
@@ -99,14 +102,14 @@ export async function sendNotificationToUser(client: SupabaseClient, notificatio
   const userId = userIdOverride ?? notification.user_id;
   const { data: subscriptions, error } = await client
     .from('push_subscriptions')
-    .select('id,user_id,endpoint,p256dh,auth,enabled,preferences')
+    .select('id,user_id,endpoint,p256dh,auth,enabled,preferences,fail_count')
     .eq('user_id', userId)
     .eq('enabled', true);
   if (error) throw error;
 
   const appServer = await getApplicationServer();
   const url = normalizeUrl(routeForNotification(notification));
-  const title = String(notification.title || 'Student Hub').slice(0, 160);
+  const title = String(notification.title || 'Inside Code').slice(0, 160);
   const body = String(notification.body || '').slice(0, 280);
   const payload = JSON.stringify({
     id: notification.id,
@@ -114,7 +117,7 @@ export async function sendNotificationToUser(client: SupabaseClient, notificatio
     body,
     icon: `${appUrl()}/icons/icon-192.png`,
     badge: `${appUrl()}/icons/icon-192.png`,
-    tag: `student-hub-${notification.id ?? crypto.randomUUID()}`,
+    tag: `inside-code-${notification.id ?? crypto.randomUUID()}`,
     payload: { url },
   });
 
@@ -132,7 +135,7 @@ export async function sendNotificationToUser(client: SupabaseClient, notificatio
           if (gone) {
             await client.from('push_subscriptions').delete().eq('id', sub.id);
           } else {
-            await client.from('push_subscriptions').update({ last_error: error instanceof Error ? error.message : String(error), fail_count: (Number((sub as any).fail_count) || 0) + 1 }).eq('id', sub.id);
+            await client.from('push_subscriptions').update({ last_error: error instanceof Error ? error.message : String(error), fail_count: Math.min(Number(sub.fail_count || 0) + 1, 20) }).eq('id', sub.id);
           }
           throw error;
         }
@@ -149,7 +152,7 @@ export async function sendNotificationToUser(client: SupabaseClient, notificatio
 export function isWebhookSecret(req: Request): boolean {
   const expected = Deno.env.get('PUSH_WEBHOOK_SECRET');
   if (!expected) return false;
-  return req.headers.get('x-student-hub-webhook-secret') === expected;
+  return req.headers.get('x-inside-code-webhook-secret') === expected || req.headers.get('x-student-hub-webhook-secret') === expected;
 }
 
 export async function getAuthenticatedUserId(client: SupabaseClient, req: Request): Promise<string | null> {

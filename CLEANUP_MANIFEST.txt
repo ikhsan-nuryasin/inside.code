@@ -1,4 +1,4 @@
-Student Hub v1.8.1 — Production Clean Package
+Inside Code v1.8.3 — Production Clean Package
 
 KEPT
 - React/Vite application source in web/src
@@ -8,19 +8,26 @@ KEPT
 - production-guard.mjs
 - Supabase config
 - Supabase Edge Function for Web Push
-- Supabase migrations 001–027
+- Supabase migrations 001–029
 - VAPID generator utility
-- environment examples only
-- concise deployment/security documentation
+- web/.env.example and ignored web/.env for local production testing
+- deployment/security/admin documentation
 
 REMOVED AS NON-PRODUCTION/REDUNDANT
 - .git directory/history
 - dist, node_modules, caches, build-info
-- real .env/local environment files
 - old Vercel, Netlify and Apache/cPanel configs
 - old batch helper files
 - audit/verification scripts not required by production build
 - historical docs/changelogs/release duplicates
-- old v1.5/v1.6/v1.7 feature notes duplicated by current source
 - Supabase test-note files
-- duplicated push environment example
+- duplicated push environment examples
+
+VERSION 1.8.3 CHANGES
+- Renamed visible application branding to Inside Code.
+- Added persistent app_settings branding configuration.
+- Added admin panel for app name, logo, tagline, login copy and primary color.
+- Added public app-assets Storage bucket with admin-only write policies.
+- Added is_app_admin() and system_admins support.
+- Hardened Turnstile rendering for SPA login/signup with visible error state and retry.
+- Uses a single SPA Turnstile script loader to avoid duplicate ownership.

@@ -2,7 +2,7 @@ import { createAdminClient, getAuthenticatedUserId, isWebhookSecret, sendNotific
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-student-hub-webhook-secret',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-inside-code-webhook-secret, x-student-hub-webhook-secret',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       id: `test-${crypto.randomUUID()}`,
       user_id: userId,
       notification_type: 'system',
-      title: 'Student Hub berhasil terhubung',
+      title: 'Inside Code berhasil terhubung',
       body: 'Ini adalah notifikasi tes. Push notification aktif di perangkat ini.',
       data: { url: '#/notifications', system: true },
     };

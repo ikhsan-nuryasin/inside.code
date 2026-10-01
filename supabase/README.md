@@ -1,4 +1,4 @@
-# Student Hub v1.8.1 — Supabase
+# Inside Code v1.8.3 — Supabase
 
 Run migrations in exact numeric order:
 
@@ -30,6 +30,8 @@ Run migrations in exact numeric order:
 025_cash_monthly_summary.sql
 026_cash_payment_ledger_link.sql
 027_cash_month_summary_zero_state.sql
+028_app_branding_and_admin_settings.sql
+029_inside_code_security_and_scheduler_fixes.sql
 ```
 
 ## Product boundaries
@@ -57,7 +59,7 @@ Use `supabase/tests/RLS_TEST_PLAN.md` and `supabase/tests/IMPLEMENTATION_SECURIT
 
 ## Web Push
 
-Student Hub now supports browser Web Push for system notifications outside the app. The browser stores only its own subscription row under RLS; the VAPID private key is server-only.
+Inside Code supports browser Web Push for system notifications outside the app. The browser stores only its own subscription row under RLS; the VAPID private key is server-only.
 
 Required production secrets for the `send-notification-push` Edge Function:
 
@@ -81,13 +83,17 @@ Only the `VITE_VAPID_PUBLIC_KEY` output goes into the browser app. The JWK value
 
 1. Deploy `send-notification-push` to Supabase Edge Functions.
 2. Set the five secrets above.
-3. In Supabase Dashboard, create a Database Webhook for `public.notifications` on `INSERT`, target the `send-notification-push` Edge Function, and add header `x-student-hub-webhook-secret` with the exact `PUSH_WEBHOOK_SECRET`.
+3. In Supabase Dashboard, create a Database Webhook for `public.notifications` on `INSERT`, target the `send-notification-push` Edge Function, and add header `x-inside-code-webhook-secret` with the exact `PUSH_WEBHOOK_SECRET`.
 4. In the browser, sign in and enable **Notifikasi perangkat** from Pengaturan.
 5. Press **Kirim notifikasi tes** and verify the device notification tray.
 
 System notifications require a service worker, push subscription, server-side sender, and permission granted by the user. On iPhone/iPad, the web app must be added to the Home Screen before enabling Web Push.
 
 ## Web Push implementation
+
+Branding hardening in v1.8.3:
+- `migrations/028_app_branding_and_admin_settings.sql`
+- `migrations/029_inside_code_security_and_scheduler_fixes.sql`
 
 Files added in v1.6.0:
 - `migrations/021_notification_type_expansion.sql`
@@ -99,3 +105,7 @@ Full deployment steps are in `docs/40_WEB_PUSH_NOTIFICATIONS.md`.
 
 ### v1.7.0
 - Run migration `025_cash_monthly_summary.sql` after 024 for monthly class cash reporting, then 026 for ledger linking and 027 for zero-state summary hardening.
+
+### v1.8.3
+- 028 adds `app_settings`, `system_admins`, the `is_app_admin()` RPC, and the public `app-assets` bucket.
+- 029 adds explicit grants, branding storage path hardening, and an optional 15-minute assignment reminder scheduler when pg_cron is enabled.
