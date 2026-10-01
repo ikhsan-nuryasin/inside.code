@@ -85,7 +85,7 @@ export const demoPollVotes: PollVote[] = [];
 
 export const demoClassEvents: ClassEvent[] = [
   { id:'event-1', class_id:'class-1', created_by:'demo-user', event_type:'presentation', title:'Presentasi Database', description:'Urutan presentasi dari Randomizer.', starts_at:new Date(Date.now()+86400000*3).toISOString(), ends_at:new Date(Date.now()+86400000*3+90*60000).toISOString(), location:'Ruang 301-E5', meeting_url:null, pinned:true, created_at:new Date().toISOString(), updated_at:new Date().toISOString() },
-  { id:'event-2', class_id:'class-1', created_by:'demo-user', event_type:'meeting', title:'Rapat kelas mingguan', description:'Persiapan UTS dan project.', starts_at:new Date(Date.now()+86400000*4).toISOString(), ends_at:new Date(Date.now()+86400000*4+60*60000).toISOString(), location:null, meeting_url:'https://meet.google.com/demo-student-hub', pinned:false, created_at:new Date().toISOString(), updated_at:new Date().toISOString() }
+  { id:'event-2', class_id:'class-1', created_by:'demo-user', event_type:'meeting', title:'Rapat kelas mingguan', description:'Persiapan UTS dan project.', starts_at:new Date(Date.now()+86400000*4).toISOString(), ends_at:new Date(Date.now()+86400000*4+60*60000).toISOString(), location:null, meeting_url:'https://meet.google.com/demo-inside-code', pinned:false, created_at:new Date().toISOString(), updated_at:new Date().toISOString() }
 ];
 export const demoActivityLogs: ActivityLog[] = [
   { id:'act-1', user_id:'u2', class_id:'class-1', action:'INSERT assignment', entity_type:'assignments', entity_id:'task-1', metadata:{title:'CRUD PHP'}, created_at:new Date(Date.now()-25*60000).toISOString() },

@@ -23,6 +23,7 @@ import { MfaChallengePage } from './pages/MfaChallengePage';
 import { nav, useRoute, type Route } from './lib/router';
 import { NotificationPopup } from './components/NotificationPopup';
 import { clearLocalData } from './lib/offline';
+import { AdminSettingsPage } from './pages/AdminSettingsPage';
 
 function renderPage(route: Route): ReactNode {
   switch (route.name) {
@@ -41,6 +42,7 @@ function renderPage(route: Route): ReactNode {
     case 'quick-messages': return <QuickMessagesPage />;
     case 'settings': return <SettingsPage />;
     case 'security': return <SecurityPage />;
+    case 'admin': return <AdminSettingsPage />;
     case 'class': return <ClassPage classId={route.classId} initialTab={route.tab} itemId={route.itemId} />;
     case 'update-password': return <UpdatePasswordPage onDone={() => { nav('/dashboard'); location.reload(); }} />;
     default: return <DashboardPage />;
@@ -91,7 +93,7 @@ function MfaGateApp({ route, setSignedIn }: { route: Route; setSignedIn: (value:
   }, [retryKey]);
 
   if (checking) return <div className="loading-screen"><div className="spinner" /><strong>Memeriksa keamanan akun…</strong></div>;
-  if (securityError) return <div className="loading-screen"><div className="card security-gate-error"><strong>Verifikasi keamanan gagal</strong><p className="muted">Student Hub tidak dapat memastikan status MFA akun ini. Demi keamanan, akses ditahan sampai status berhasil diperiksa.</p><p className="muted">{securityError}</p><div className="button-row"><button className="btn btn-primary" type="button" onClick={() => setRetryKey(v => v + 1)}>Coba lagi</button><button className="btn btn-ghost" type="button" onClick={() => void logoutEverywhere(setSignedIn)}>Keluar</button></div></div></div>;
+  if (securityError) return <div className="loading-screen"><div className="card security-gate-error"><strong>Verifikasi keamanan gagal</strong><p className="muted">Inside Code tidak dapat memastikan status MFA akun ini. Demi keamanan, akses ditahan sampai status berhasil diperiksa.</p><p className="muted">{securityError}</p><div className="button-row"><button className="btn btn-primary" type="button" onClick={() => setRetryKey(v => v + 1)}>Coba lagi</button><button className="btn btn-ghost" type="button" onClick={() => void logoutEverywhere(setSignedIn)}>Keluar</button></div></div></div>;
   if (required) return <MfaChallengePage onVerified={() => setRetryKey(v => v + 1)} onLogout={() => logoutEverywhere(setSignedIn)} />;
   return <AppShell>{renderPage(route)}<NotificationPopup /></AppShell>;
 }
@@ -112,7 +114,7 @@ export default function App() {
     return () => { mounted = false; sub.data.subscription.unsubscribe(); };
   }, []);
 
-  if (!ready) return <div className="loading-screen"><div className="spinner" /><strong>Menyiapkan Student Hub…</strong></div>;
+  if (!ready) return <div className="loading-screen"><div className="spinner" /><strong>Menyiapkan Inside Code…</strong></div>;
   if (!DEMO_MODE && !SUPABASE_CONFIGURED) return <div className="loading-screen"><div className="card" style={{ maxWidth: 520 }}><strong>Konfigurasi Supabase belum lengkap.</strong><p className="muted">Isi VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY di web/.env.local, lalu restart server.</p></div></div>;
   if (route.name === 'update-password') return <UpdatePasswordPage onDone={() => { nav('/dashboard'); location.reload(); }} />;
   if (!signedIn) return <AuthPage onDone={() => setSignedIn(true)} />;

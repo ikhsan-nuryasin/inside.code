@@ -8,9 +8,10 @@ import type { ClassPosition } from '../types/models';
 import { POSITION_LABEL } from '../lib/permissions';
 import { ToastHost } from './ToastHost';
 import { DialogHost } from './DialogHost';
+import { DEFAULT_APP_SETTINGS, getAppSettings, isSystemAdmin, type AppSettings } from '../lib/app-settings';
 
 const baseNav=[
-  ['dashboard','Dashboard','home'],['classes','Kelas','grid'],['tasks','Tugas','check'],['calendar','Jadwal','calendar'],['notes','Catatan','note'],['documentation','Dokumentasi','image'],['cash','Kas','wallet'],['notifications','Notifikasi','bell'],['positions','Jabatan','users'],['randomizer','Randomizer','spark'],['search','Cari','search'],['help','Bantuan','help'],['quick-messages','Pesan Cepat','message'],['security','Keamanan','shield'],['settings','Pengaturan','settings']
+  ['dashboard','Dashboard','home'],['admin','Admin','settings'],['classes','Kelas','grid'],['tasks','Tugas','check'],['calendar','Jadwal','calendar'],['notes','Catatan','note'],['documentation','Dokumentasi','image'],['cash','Kas','wallet'],['notifications','Notifikasi','bell'],['positions','Jabatan','users'],['randomizer','Randomizer','spark'],['search','Cari','search'],['help','Bantuan','help'],['quick-messages','Pesan Cepat','message'],['security','Keamanan','shield'],['settings','Pengaturan','settings']
 ] as const;
 
 type IconName = typeof baseNav[number][2] | 'more';
@@ -42,15 +43,17 @@ export function AppShell({children}:{children:ReactNode}){
  const [positions,setPositions]=useState<ClassPosition[]>([]);
  const [update,setUpdate]=useState(false);
  const [moreOpen,setMoreOpen]=useState(false);
+ const [systemAdmin,setSystemAdmin]=useState(false);
+ const [appSettings,setAppSettings]=useState<AppSettings>(DEFAULT_APP_SETTINGS);
  const refreshIdentity=async()=>{try{const ps=await listMyClassPositions();setPositions(ps.map(p=>p.position));}catch{/* sidebar remains usable offline */}};
- useEffect(()=>{void refreshIdentity();return subscribeSyncEvents(()=>void refreshIdentity())},[]);
- useEffect(()=>{const on=()=>setUpdate(true);window.addEventListener('student-hub-sw-update',on);return()=>window.removeEventListener('student-hub-sw-update',on)},[]);
+ useEffect(()=>{void refreshIdentity();void isSystemAdmin().then(setSystemAdmin);void getAppSettings().then(setAppSettings);return subscribeSyncEvents(()=>{void refreshIdentity();void isSystemAdmin().then(setSystemAdmin);})},[]);
+ useEffect(()=>{const on=()=>setUpdate(true);window.addEventListener('inside-code-sw-update',on);return()=>window.removeEventListener('inside-code-sw-update',on)},[]);
  const active=route.name==='class'?'classes':route.name;
- const visibleNav=baseNav.filter(([key])=>key!=='positions'||positions.some(p=>p==='ketua'||p==='wakil_ketua'));
+ const visibleNav=baseNav.filter(([key])=>key!=='positions'||positions.some(p=>p==='ketua'||p==='wakil_ketua')).filter(([key])=>key!=='admin'||systemAdmin);
  const logout=async()=>{if(!DEMO_MODE&&supabase)await supabase.auth.signOut();await clearLocalData();nav('/dashboard');location.reload()};
  return <div className="shell">
   <aside className="sidebar">
-   <button className="brand" onClick={()=>nav('/dashboard')} aria-label="Student Hub"><span className="brand-icon" aria-hidden="true"><img src="/icon.svg" alt="" /></span><span><strong>Student Hub</strong><small>Ruang kelas mahasiswa</small></span></button>
+   <button className="brand" onClick={()=>nav('/dashboard')} aria-label={appSettings.app_name}><span className="brand-icon" aria-hidden="true"><img src={appSettings.logo_url||'/icon.svg'} alt="" /></span><span><strong>{appSettings.short_name}</strong><small>{appSettings.tagline}</small></span></button>
    <nav className="side-nav" aria-label="Navigasi utama">{visibleNav.map(([key,label,icon])=><button key={key} aria-current={active===key?'page':undefined} className={active===key?'active':''} onClick={()=>nav(`/${key}`)}><b aria-hidden="true"><NavGlyph name={icon}/></b>{label}</button>)}</nav>
    <div className="side-bottom"><div className="sidebar-role"><span>Jabatan</span><strong>{positions.length?positions.map(p=>POSITION_LABEL[p]).join(' · '):'Anggota'}</strong></div><button onClick={()=>void logout()}>↪ Keluar</button></div>
   </aside>
@@ -64,6 +67,6 @@ export function AppShell({children}:{children:ReactNode}){
   {moreOpen&&<div className="mobile-more-backdrop" onClick={()=>setMoreOpen(false)}><section className="mobile-more-sheet" role="dialog" aria-modal="true" aria-label="Menu lainnya" onClick={e=>e.stopPropagation()}><div className="sheet-handle"/><div className="sheet-title"><div><span className="eyebrow">Menu</span><h3>Akses lainnya</h3></div><button className="sheet-close" onClick={()=>setMoreOpen(false)} aria-label="Tutup menu">×</button></div><div className="more-grid">{visibleNav.filter(([key])=>!['dashboard','classes','tasks','calendar'].includes(key)).map(([key,label,icon])=><button key={key} onClick={()=>{setMoreOpen(false);nav(`/${key}`)}}><span className="more-icon"><NavGlyph name={icon}/></span><span>{label}</span></button>)}</div></section></div>}
   <ToastHost/>
   <DialogHost/>
-  {update&&<div className="update-bar" role="status"><strong>Versi baru Student Hub tersedia.</strong><button onClick={()=>location.reload()}>Muat ulang</button><button className="ghost-link" onClick={()=>setUpdate(false)}>Nanti</button></div>}
+  {update&&<div className="update-bar" role="status"><strong>Versi baru {appSettings.app_name} tersedia.</strong><button onClick={()=>location.reload()}>Muat ulang</button><button className="ghost-link" onClick={()=>setUpdate(false)}>Nanti</button></div>}
  </div>;
 }

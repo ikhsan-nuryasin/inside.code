@@ -20,7 +20,7 @@ const PRESETS: MessagePreset[] = [
   { id: 'custom', label: 'Pesan lainnya', icon: '✎', intro: 'Pesan bebas', helper: 'Tulis pesan sendiri lalu buka WhatsApp.', make: c => c.extra || '[Tulis pesanmu di area pesan.]', },
 ];
 
-const CONTACT_KEY = 'student-hub-quick-message-contact';
+const CONTACT_KEY = 'inside-code-quick-message-contact';
 
 function formatDateId(raw: string) {
   if (!raw) return '';
@@ -86,7 +86,7 @@ export function QuickMessagesPage() {
 
     <Card className="quick-message-hero">
       <div className="quick-message-icon">✦</div>
-      <div><span className="eyebrow">WhatsApp helper</span><h3>Pilih template, periksa pesan, lalu kirim.</h3><p className="muted">Student Hub tidak mengirim pesan otomatis. Tombol di bawah hanya membuka WhatsApp dengan teks yang sudah disiapkan.</p></div>
+      <div><span className="eyebrow">WhatsApp helper</span><h3>Pilih template, periksa pesan, lalu kirim.</h3><p className="muted">Inside Code tidak mengirim pesan otomatis. Tombol di bawah hanya membuka WhatsApp dengan teks yang sudah disiapkan.</p></div>
     </Card>
 
     <Card>
@@ -113,7 +113,7 @@ export function QuickMessagesPage() {
       <div className="section-head"><div><span className="eyebrow">3 · Preview</span><h3>{preset.intro}</h3></div><Badge tone="info">WhatsApp</Badge></div>
       <div className="whatsapp-preview"><div className="whatsapp-preview-head"><span>WhatsApp</span><small>{lecturerName || 'Bapak/Ibu Dosen'}</small></div><p>{message}</p></div>
       <div className="button-row quick-message-actions"><Button onClick={openWhatsApp} disabled={!canSend}>Buka WhatsApp</Button><Button variant="ghost" onClick={() => { void navigator.clipboard?.writeText(message).then(() => showToast('Pesan disalin.', 'good')).catch(() => showToast('Pesan tidak dapat disalin otomatis.', 'warn')); }}>Salin pesan</Button></div>
-      <p className="muted quick-message-note">Nomor dan isi pesan tidak disimpan ke server Student Hub. Pengiriman dilakukan di aplikasi WhatsApp kamu.</p>
+      <p className="muted quick-message-note">Nomor dan isi pesan tidak disimpan ke server Inside Code. Pengiriman dilakukan di aplikasi WhatsApp kamu.</p>
     </Card>
   </div>;
 }

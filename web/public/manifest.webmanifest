@@ -1,6 +1,6 @@
 {
-  "name": "Student Hub",
-  "short_name": "Student Hub",
+  "name": "Inside Code",
+  "short_name": "Inside Code",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f4f9ff",

@@ -1,6 +1,6 @@
 import type { SyncQueueItem } from '../types/models';
 
-const DB_NAME = 'student-hub-pwa';
+const DB_NAME = 'inside-code-pwa';
 const VERSION = 2;
 type StoreName = 'cache' | 'queue' | 'meta' | 'files';
 
@@ -14,7 +14,7 @@ export interface LocalFileRecord {
 }
 
 let dbPromise: Promise<IDBDatabase> | null = null;
-const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('student-hub-sync') : null;
+const syncChannel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('inside-code-sync') : null;
 
 function openDb(): Promise<IDBDatabase> {
   if (dbPromise) return dbPromise;

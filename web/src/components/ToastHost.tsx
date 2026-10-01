@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 type Toast = { id: number; message: string; tone?: 'info'|'good'|'warn'|'danger' };
-const EVENT = 'student-hub-toast';
+const EVENT = 'inside-code-toast';
 export function showToast(message:string, tone:Toast['tone']='info') {
   window.dispatchEvent(new CustomEvent(EVENT,{detail:{message,tone}}));
 }

@@ -6,11 +6,11 @@ import type { BugReport, BugReportCategory, BugSeverity } from '../types/models'
 import { showToast } from '../components/ToastHost';
 
 const FAQ = [
-  ['Bagaimana Student Hub tetap bisa dipakai offline?', 'Data yang sudah pernah tersimpan di perangkat dapat dibaca saat offline. Perubahan yang didukung akan masuk antrean sinkronisasi dan dikirim kembali ketika koneksi tersedia.'],
+  ['Bagaimana Inside Code tetap bisa dipakai offline?', 'Data yang sudah pernah tersimpan di perangkat dapat dibaca saat offline. Perubahan yang didukung akan masuk antrean sinkronisasi dan dikirim kembali ketika koneksi tersedia.'],
   ['Kenapa perubahan saya belum terlihat di perangkat lain?', 'Periksa status sinkronisasi. Saat offline atau koneksi tidak stabil, perubahan dapat menunggu di outbox sampai proses sinkronisasi berhasil.'],
   ['Bagaimana cara membuka fitur kelas lain?', 'Masuk ke Kelas, pilih kelas yang diinginkan, lalu gunakan semua fitur kelas dari halaman Detail Kelas.'],
   ['Bagaimana cara mengirim pesan ke dosen?', 'Gunakan Pesan Cepat untuk membuat pesan siap kirim. Isi nomor WhatsApp dosen, periksa preview, lalu buka WhatsApp.'],
-  ['Apakah Student Hub menyimpan nomor WhatsApp dosen?', 'Nomor penerima pada Pesan Cepat hanya disimpan lokal pada perangkat bila kamu memilih menyimpannya. Tidak dikirim ke server Student Hub.'],
+  ['Apakah Inside Code menyimpan nomor WhatsApp dosen?', 'Nomor penerima pada Pesan Cepat hanya disimpan lokal pada perangkat bila kamu memilih menyimpannya. Tidak dikirim ke server Inside Code.'],
 ] as const;
 
 const CATEGORY_LABEL: Record<BugReportCategory, string> = {
@@ -72,7 +72,7 @@ export function HelpPage() {
       <div>
         <span className="eyebrow">Support</span>
         <h2>Bantuan</h2>
-        <p>Pusat bantuan, panduan singkat, dan laporan bug Student Hub.</p>
+        <p>Pusat bantuan, panduan singkat, dan laporan bug Inside Code.</p>
       </div>
       <div className="button-row quick-page-head-actions"><Button variant="soft" onClick={() => nav('/quick-messages')}>Pesan Cepat</Button><Button variant="ghost" onClick={() => nav('/dashboard')}>Kembali</Button></div>
     </div>

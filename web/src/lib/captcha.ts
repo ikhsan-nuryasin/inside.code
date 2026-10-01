@@ -5,14 +5,21 @@ export type TurnstileWidget = {
     size?: 'normal' | 'compact' | 'flexible';
     callback?: (token: string) => void;
     'expired-callback'?: () => void;
-    'error-callback'?: () => void;
+    'error-callback'?: (errorCode?: string) => void;
+    'timeout-callback'?: () => void;
+    'unsupported-callback'?: () => void;
+    action?: string;
+    'refresh-expired'?: 'auto' | 'manual';
   }) => string | number;
   reset: (widgetId?: string | number) => void;
   remove?: (widgetId?: string | number) => void;
 };
 
 declare global {
-  interface Window { turnstile?: TurnstileWidget; __studentHubTurnstilePromise?: Promise<void>; }
+  interface Window {
+    turnstile?: TurnstileWidget;
+    __insideCodeTurnstilePromise?: Promise<void>;
+  }
 }
 
 export const CAPTCHA_REQUIRED = String(import.meta.env.VITE_CAPTCHA_REQUIRED ?? 'true').toLowerCase() === 'true';
@@ -26,28 +33,47 @@ export function captchaConfiguredForProduction(): boolean {
 export function loadTurnstileScript(): Promise<void> {
   if (typeof window === 'undefined') return Promise.resolve();
   if (window.turnstile) return Promise.resolve();
-  if (window.__studentHubTurnstilePromise) return window.__studentHubTurnstilePromise;
-  window.__studentHubTurnstilePromise = new Promise((resolve, reject) => {
-    const existing = document.querySelector<HTMLScriptElement>('script[data-student-hub-turnstile]');
+  if (window.__insideCodeTurnstilePromise) return window.__insideCodeTurnstilePromise;
+
+  window.__insideCodeTurnstilePromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector<HTMLScriptElement>('script[data-inside-code-turnstile], script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]');
+    const startedAt = Date.now();
+
+    const finish = () => {
+      if (window.turnstile) {
+        resolve();
+        return true;
+      }
+      return false;
+    };
+
     if (existing) {
-      const timeout = window.setTimeout(() => reject(new Error('TURNSTILE_SCRIPT_TIMEOUT')), 12000);
+      const timeout = window.setTimeout(() => reject(new Error('TURNSTILE_SCRIPT_TIMEOUT')), 15000);
       const poll = () => {
-        if (window.turnstile) { window.clearTimeout(timeout); resolve(); return; }
+        if (finish()) { window.clearTimeout(timeout); return; }
+        if (Date.now() - startedAt > 15000) { window.clearTimeout(timeout); reject(new Error('TURNSTILE_SCRIPT_TIMEOUT')); return; }
         window.setTimeout(poll, 50);
       };
       poll();
       return;
     }
+
     const script = document.createElement('script');
     script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
     script.async = true;
     script.defer = true;
-    script.dataset.studentHubTurnstile = 'true';
-    script.onload = () => resolve();
+    script.dataset.insideCodeTurnstile = 'true';
+    script.onload = () => {
+      if (!finish()) reject(new Error('TURNSTILE_API_NOT_AVAILABLE'));
+    };
     script.onerror = () => reject(new Error('TURNSTILE_SCRIPT_LOAD_FAILED'));
     document.head.appendChild(script);
+  }).catch((error) => {
+    window.__insideCodeTurnstilePromise = undefined;
+    throw error;
   });
-  return window.__studentHubTurnstilePromise;
+
+  return window.__insideCodeTurnstilePromise;
 }
 
 export function resetTurnstile(widgetId: string | number | null | undefined): void {

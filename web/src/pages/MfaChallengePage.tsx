@@ -42,7 +42,7 @@ export function MfaChallengePage({ onVerified, onLogout }: { onVerified: () => v
   };
 
   return <div className="auth-layout security-auth-layout">
-    <div className="auth-hero"><div className="hero-mark"><img src="/icon.svg" alt="Student Hub" /></div><span className="eyebrow">Verifikasi keamanan</span><h1>Konfirmasi login kamu.</h1><p>Akun ini memiliki verifikasi dua langkah. Masukkan kode 6 digit dari aplikasi authenticator untuk melanjutkan.</p></div>
+    <div className="auth-hero"><div className="hero-mark"><img src="/icon.svg" alt="Inside Code" /></div><span className="eyebrow">Verifikasi keamanan</span><h1>Konfirmasi login kamu.</h1><p>Akun ini memiliki verifikasi dua langkah. Masukkan kode 6 digit dari aplikasi authenticator untuk melanjutkan.</p></div>
     <Card className="auth-card mfa-challenge-card">
       <div className="auth-card-head"><h2>Verifikasi dua langkah</h2><p>Gunakan Google Authenticator, Microsoft Authenticator, 1Password, atau aplikasi TOTP lain.</p></div>
       <form className="stack-form" onSubmit={e => { e.preventDefault(); void verify(); }}>

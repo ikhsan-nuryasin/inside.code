@@ -37,7 +37,7 @@ export function SecurityPage() {
     if (!supabase) return;
     setBusy(true); setError('');
     try {
-      const { data, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: `Student Hub ${new Date().toLocaleDateString('id-ID')}` });
+      const { data, error: enrollError } = await supabase.auth.mfa.enroll({ factorType: 'totp', friendlyName: `Inside Code ${new Date().toLocaleDateString('id-ID')}` });
       if (enrollError) throw enrollError;
       setEnroll({ id: data.id, qr: data.totp.qr_code, secret: data.totp.secret, uri: data.totp.uri });
       setCode('');
@@ -71,7 +71,7 @@ export function SecurityPage() {
 
   const verified = factors.filter(f => f.status === 'verified');
   return <div className="stack-page security-page">
-    <div className="mobile-page-head"><button className="mobile-back" onClick={()=>nav('/settings')} aria-label="Kembali">‹</button><div><h2>Keamanan Akun</h2><small>Lapisan perlindungan Student Hub</small></div></div>
+    <div className="mobile-page-head"><button className="mobile-back" onClick={()=>nav('/settings')} aria-label="Kembali">‹</button><div><h2>Keamanan Akun</h2><small>Lapisan perlindungan Inside Code</small></div></div>
     {error && <div className="alert alert-danger" role="alert">{error}</div>}
     <Card className="security-hero"><div><span className="eyebrow">Security center</span><h3>Kelola keamanan akun</h3><p>CAPTCHA melindungi endpoint autentikasi dari bot, sedangkan MFA menambah verifikasi kedua saat login.</p></div><Badge tone={verified.length ? 'good' : 'warn'}>{verified.length ? 'MFA aktif' : 'MFA belum aktif'}</Badge></Card>
 
@@ -80,9 +80,9 @@ export function SecurityPage() {
       <Card className="security-card"><div className="section-head"><div><span className="eyebrow">Account</span><h3>Status akun</h3></div><Badge tone={emailVerified?'good':'warn'}>{emailVerified?'Terverifikasi':'Perlu verifikasi'}</Badge></div><div className="security-facts"><div><small>Email</small><strong>{emailVerified===null?'Memeriksa…':emailVerified?'Terverifikasi':'Belum diverifikasi'}</strong></div><div><small>Session</small><strong>{aal.toUpperCase()}</strong></div><div><small>MFA</small><strong>{verified.length ? 'Aktif' : 'Opsional'}</strong></div></div><p className="muted">Untuk production, aktifkan Confirm Email di Supabase Auth agar akun harus memverifikasi alamat email sebelum akses penuh.</p><div className="button-row"><Button variant="danger" disabled={busy || DEMO_MODE} onClick={()=>void globalLogout()}>Keluar dari semua perangkat</Button></div></Card>
     </div>
 
-    <Card className="security-mfa-card"><div className="section-head"><div><span className="eyebrow">MFA / 2FA</span><h3>Authenticator App</h3></div>{verified.length?<Badge tone="good">{verified.length} faktor aktif</Badge>:<Badge tone="neutral">Opsional</Badge>}</div><p className="muted">Tambahkan TOTP menggunakan aplikasi authenticator. Setelah aktif, login Student Hub akan meminta kode 6 digit.</p>
+    <Card className="security-mfa-card"><div className="section-head"><div><span className="eyebrow">MFA / 2FA</span><h3>Authenticator App</h3></div>{verified.length?<Badge tone="good">{verified.length} faktor aktif</Badge>:<Badge tone="neutral">Opsional</Badge>}</div><p className="muted">Tambahkan TOTP menggunakan aplikasi authenticator. Setelah aktif, login Inside Code akan meminta kode 6 digit.</p>
       {!verified.length && !enroll && !DEMO_MODE && <Button disabled={busy} onClick={()=>void beginEnroll()}>{busy?'Menyiapkan…':'Aktifkan MFA'}</Button>}
-      {DEMO_MODE && <div className="alert alert-info">MFA production tersedia saat Student Hub terhubung ke Supabase.</div>}
+      {DEMO_MODE && <div className="alert alert-info">MFA production tersedia saat Inside Code terhubung ke Supabase.</div>}
       {enroll && <div className="mfa-enroll-box"><div><img className="mfa-qr" src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(enroll.qr)}`} alt="QR code MFA" /><small className="muted">Scan QR dengan aplikasi authenticator.</small></div><div className="stack-form"><Field label="Kode 6 digit"><input inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="000000" /></Field><div className="security-secret"><small>Secret manual</small><code>{enroll.secret}</code></div><Button disabled={busy || code.length !== 6} onClick={()=>void verifyEnroll()}>{busy?'Memverifikasi…':'Verifikasi & aktifkan'}</Button><Button variant="ghost" disabled={busy} onClick={()=>setEnroll(null)}>Batal</Button></div></div>}
       {verified.map(f=><div className="mfa-factor-row" key={f.id}><div><strong>{f.friendly_name || 'Authenticator'}</strong><small>{f.factor_type.toUpperCase()} · {f.status}</small></div><Button variant="danger" disabled={busy || aal!=='aal2'} onClick={()=>void removeFactor(f.id)}>Nonaktifkan</Button></div>)}
       {loading && <small className="muted">Memuat status MFA…</small>}

@@ -1,4 +1,4 @@
-const CACHE = "student-hub-v1.8.1-security-push";
+const CACHE = "inside-code-v1.8.3-security-push";
 const APP_SHELL = [
   "/",
   "/index.html",
@@ -59,11 +59,11 @@ self.addEventListener("fetch", (event) => {
 self.addEventListener("push", (event) => {
   let data = {
     id: null,
-    title: "Student Hub",
+    title: "Inside Code",
     body: "Ada pemberitahuan baru.",
     icon: "/icons/icon-192.png",
     badge: "/icons/icon-192.png",
-    tag: "student-hub-notification",
+    tag: "inside-code-notification",
     payload: { url: "/#/notifications" }
   };
   if (event.data) {
@@ -77,7 +77,7 @@ self.addEventListener("push", (event) => {
       body: data.body,
       icon: data.icon || "/icons/icon-192.png",
       badge: data.badge || "/icons/icon-192.png",
-      tag: data.tag || "student-hub-notification",
+      tag: data.tag || "inside-code-notification",
       renotify: true,
       data: { url: targetUrl, notificationId: data.id },
       actions: [

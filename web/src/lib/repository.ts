@@ -901,7 +901,7 @@ export async function syncNow() {
   if (syncPromise) return syncPromise;
   syncPromise = (async () => {
     const locks = (navigator as Navigator & { locks?: { request: <T>(name: string, callback: () => Promise<T>) => Promise<T> } }).locks;
-    if (locks) return locks.request('student-hub-sync', runSyncLocked);
+    if (locks) return locks.request('inside-code-sync', runSyncLocked);
     const lockKey = 'syncLock'; const current = await metaGet<number>(lockKey); if (current && current > Date.now() - 15000) return queueState(); await metaSet(lockKey, Date.now()); try { return await runSyncLocked(); } finally { await metaSet(lockKey, 0); }
   })().finally(() => { syncPromise = null; });
   return syncPromise;
@@ -910,7 +910,7 @@ export async function lastSyncAt() { return metaGet<string>('lastSyncAt'); }
 export function subscribeNotificationPopups(onNotification: (notification: Notification) => void) {
   const client = supabase;
   if (!client) return () => {};
-  const channel = client.channel(`student-hub-notification-popups-${Math.random().toString(36).slice(2)}`)
+  const channel = client.channel(`inside-code-notification-popups-${Math.random().toString(36).slice(2)}`)
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'notifications' }, (payload) => {
       const row = payload.new as Notification;
       void currentUserId().then(uid => { if (uid && row.user_id === uid) onNotification(row); });
@@ -921,6 +921,6 @@ export function subscribeNotificationPopups(onNotification: (notification: Notif
 export function subscribeRealtime(onChange: () => void) {
   const client = supabase;
   if (!client) return () => {};
-  const channel = client.channel('student-hub-events').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, onChange).subscribe();
+  const channel = client.channel('inside-code-events').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
 }

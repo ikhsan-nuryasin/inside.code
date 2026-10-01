@@ -11,7 +11,7 @@ type DialogRequest = {
   resolve: (value: boolean | string | null) => void;
 };
 
-const EVENT = 'student-hub-dialog';
+const EVENT = 'inside-code-dialog';
 
 export function requestConfirm(message: string, options?: { title?: string; confirmLabel?: string; cancelLabel?: string }) {
   return new Promise<boolean>((resolve) => {
@@ -88,9 +88,9 @@ export function DialogHost() {
   if (!current) return null;
   return (
     <div className="app-dialog-backdrop" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) finish(null); }}>
-      <section className="app-dialog" role="dialog" aria-modal="true" aria-labelledby="student-hub-dialog-title">
+      <section className="app-dialog" role="dialog" aria-modal="true" aria-labelledby="inside-code-dialog-title">
         <div className="app-dialog-head">
-          <div><span className="eyebrow">Student Hub</span><h3 id="student-hub-dialog-title">{current.title}</h3></div>
+          <div><span className="eyebrow">Inside Code</span><h3 id="inside-code-dialog-title">{current.title}</h3></div>
           <button className="app-dialog-close" type="button" onClick={() => finish(null)} aria-label="Tutup">×</button>
         </div>
         <p className="app-dialog-message">{current.message}</p>

@@ -16,10 +16,12 @@ function readEnvFile(file) {
 }
 
 const fileEnv = {
+  // Base .env is required for the local production check.
+  // Local/mode-specific files override it in the same direction as Vite.
+  ...readEnvFile('.env'),
+  ...readEnvFile('.env.local'),
   ...readEnvFile('.env.production'),
   ...readEnvFile('.env.production.local'),
-  ...readEnvFile('.env.local'),
-  ...readEnvFile('.env'),
 };
 const env = { ...fileEnv, ...process.env };
 const mode = String(env.VITE_DEMO_MODE ?? '').trim().toLowerCase();

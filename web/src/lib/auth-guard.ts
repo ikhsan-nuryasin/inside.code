@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'student-hub-auth-attempt-guard';
+const STORAGE_KEY = 'inside-code-auth-attempt-guard';
 const MAX_FAILURES = 5;
 const WINDOW_MS = 15 * 60 * 1000;
 const LOCK_MS = 5 * 60 * 1000;
