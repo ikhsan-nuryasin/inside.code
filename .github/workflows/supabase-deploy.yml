@@ -5,8 +5,8 @@ on:
     branches:
       - main
     paths:
-      - 'supabase/**'
-      - '.github/workflows/supabase-deploy.yml'
+      - "supabase/**"
+      - ".github/workflows/supabase-deploy.yml"
   workflow_dispatch:
 
 permissions:
@@ -19,42 +19,21 @@ jobs:
     env:
       SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
-      SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+      SUPABASE_PROJECT_ID: nxjwctumtkgcyghuzfwm
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
-        with:
-          persist-credentials: false
 
       - name: Setup Supabase CLI
         uses: supabase/setup-cli@v1
         with:
           version: latest
 
-      - name: Validate required files
-        shell: bash
+      - name: Push database migrations
         run: |
-          test -f supabase/config.toml
-          test -d supabase/migrations
-          test -f supabase/functions/send-notification-push/index.ts
-          test -n "$SUPABASE_ACCESS_TOKEN"
-          test -n "$SUPABASE_DB_PASSWORD"
-          test -n "$SUPABASE_PROJECT_ID"
-          echo "Supabase project files and required GitHub secrets are present."
-
-      - name: Apply database migrations
-        run: |
-          supabase db push \
-            --project-ref "$SUPABASE_PROJECT_ID" \
-            --password "$SUPABASE_DB_PASSWORD"
+          supabase db push             --project-ref "$SUPABASE_PROJECT_ID"             --password "$SUPABASE_DB_PASSWORD"
 
       - name: Deploy Edge Function
         run: |
-          supabase functions deploy send-notification-push \
-            --project-ref "$SUPABASE_PROJECT_ID"
-
-      - name: Verify deployment state
-        run: |
-          supabase migration list \
-            --project-ref "$SUPABASE_PROJECT_ID"
+          supabase functions deploy send-notification-push             --project-ref "$SUPABASE_PROJECT_ID"

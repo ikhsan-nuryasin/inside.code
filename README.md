@@ -18,7 +18,3 @@ npm run dev
 ```
 
 `web/.env` hanya untuk lokal dan diabaikan oleh Git. Untuk Cloudflare, masukkan semua `VITE_*` pada Build variables.
-
-## Supabase deployment from GitHub
-
-The repository includes `.github/workflows/supabase-deploy.yml`. Configure the GitHub Actions secrets documented in `GITHUB_SUPABASE_DEPLOY.md`, then run the workflow from the `main` branch. This is useful when the local machine cannot reach the Supabase PostgreSQL pooler.

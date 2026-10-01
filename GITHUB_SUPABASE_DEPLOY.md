@@ -1,40 +1,42 @@
-# Inside Code — Supabase deployment via GitHub Actions
+# Inside Code v1.8.3 — Supabase deploy via GitHub
 
-This repository is prepared so the Supabase database migrations and the `send-notification-push` Edge Function can be deployed from GitHub Actions. This avoids requiring the local Windows machine to connect directly to the Supabase PostgreSQL pooler.
+This project deploys the Supabase database migrations and the `send-notification-push` Edge Function from GitHub Actions.
 
-## GitHub Actions secrets
+## GitHub Secrets required
 
-Repository → Settings → Secrets and variables → Actions → New repository secret.
-
-Add exactly:
+Create only these two repository secrets:
 
 - `SUPABASE_ACCESS_TOKEN` — Supabase Personal Access Token.
-- `SUPABASE_DB_PASSWORD` — database password for this Supabase project.
-- `SUPABASE_PROJECT_ID` — `nxjwctumtkgcyghuzfwm`.
+- `SUPABASE_DB_PASSWORD` — PostgreSQL database password for the Supabase project.
 
-Never commit these values to the repository and never place them inside `VITE_*` variables.
+The project ID is already fixed in the workflow:
 
-## Deploy
+```text
+nxjwctumtkgcyghuzfwm
+```
 
-Push the repository to `main`, or open:
+## Run
 
-Actions → Deploy Inside Code to Supabase → Run workflow.
+1. Push the repository to `main`.
+2. Open **GitHub → Actions → Deploy Inside Code to Supabase**.
+3. Choose **Run workflow** and branch `main`.
+4. Wait for both migration and Edge Function steps to pass.
 
-The workflow will:
+The workflow runs:
 
-1. Install the Supabase CLI.
-2. Apply all pending files in `supabase/migrations/`.
-3. Deploy `send-notification-push`.
-4. Print migration state.
+```text
+supabase db push --project-ref nxjwctumtkgcyghuzfwm --password "$SUPABASE_DB_PASSWORD"
+supabase functions deploy send-notification-push --project-ref nxjwctumtkgcyghuzfwm
+```
 
-## Edge Function production secrets
+## Important
 
-The Edge Function still needs its production secrets configured in Supabase Dashboard → Edge Functions → Secrets (or through `supabase secrets set`). Use the real values from your private configuration for:
+Do not commit:
 
-- `VAPID_PUBLIC_JWK`
-- `VAPID_PRIVATE_JWK`
-- `VAPID_SUBJECT`
-- `PUSH_APP_URL`
-- `PUSH_WEBHOOK_SECRET`
+- database passwords
+- Supabase access tokens
+- Turnstile secret key
+- VAPID private key
+- webhook secrets
 
-Do not put any of these in frontend `VITE_*` variables.
+The browser-side `VITE_*` values belong to the frontend build and must not contain server secrets.
