@@ -19,6 +19,7 @@ const fileEnv = {
   ...readEnvFile('.env.production'),
   ...readEnvFile('.env.production.local'),
   ...readEnvFile('.env.local'),
+  ...readEnvFile('.env'),
 };
 const env = { ...fileEnv, ...process.env };
 const mode = String(env.VITE_DEMO_MODE ?? '').trim().toLowerCase();

@@ -924,4 +924,3 @@ export function subscribeRealtime(onChange: () => void) {
   const channel = client.channel('student-hub-events').on('postgres_changes', { event: '*', schema: 'public', table: 'notifications' }, onChange).subscribe();
   return () => { void client.removeChannel(channel); };
 }
-
