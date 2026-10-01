@@ -27,6 +27,7 @@ FOR DELETE TO authenticated
 USING (EXISTS (SELECT 1 FROM public.assignments a WHERE a.id=assignment_id AND public.is_class_leadership(a.class_id)));
 
 DROP POLICY IF EXISTS assignments_insert_member ON public.assignments;
+DROP POLICY IF EXISTS assignments_insert_leadership ON public.assignments;
 CREATE POLICY assignments_insert_leadership ON public.assignments
 FOR INSERT TO authenticated
 WITH CHECK (created_by=auth.uid() AND public.is_class_leadership(class_id));
@@ -42,15 +43,18 @@ CREATE INDEX IF NOT EXISTS announcements_class_pin_idx
   WHERE deleted_at IS NULL AND archived_at IS NULL;
 
 DROP POLICY IF EXISTS announcements_update_admin ON public.announcements;
+DROP POLICY IF EXISTS announcements_update_secretary ON public.announcements;
 CREATE POLICY announcements_update_secretary ON public.announcements
 FOR UPDATE TO authenticated
 USING (public.can_manage_secretary_features(class_id))
 WITH CHECK (public.can_manage_secretary_features(class_id));
 DROP POLICY IF EXISTS announcements_delete_admin ON public.announcements;
+DROP POLICY IF EXISTS announcements_delete_secretary ON public.announcements;
 CREATE POLICY announcements_delete_secretary ON public.announcements
 FOR DELETE TO authenticated
 USING (public.can_manage_secretary_features(class_id));
 DROP POLICY IF EXISTS announcements_insert_admin ON public.announcements;
+DROP POLICY IF EXISTS announcements_insert_secretary ON public.announcements;
 CREATE POLICY announcements_insert_secretary ON public.announcements
 FOR INSERT TO authenticated
 WITH CHECK (created_by=auth.uid() AND public.can_manage_secretary_features(class_id));
