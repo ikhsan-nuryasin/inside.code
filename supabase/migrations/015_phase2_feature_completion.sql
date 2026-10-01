@@ -85,10 +85,44 @@ CREATE TABLE IF NOT EXISTS public.forum_reports (
   reviewed_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   reviewed_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CHECK (post_id IS NULL OR EXISTS (SELECT 1 FROM public.forum_posts fp WHERE fp.id=post_id AND fp.topic_id=forum_reports.topic_id))
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS forum_reports_topic_idx ON public.forum_reports(topic_id, created_at DESC);
+
+-- PostgreSQL CHECK constraints cannot contain subqueries.
+-- Validate that an optional post belongs to the selected topic with a trigger instead.
+CREATE OR REPLACE FUNCTION public.validate_forum_report_post_topic()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  v_post_topic_id uuid;
+BEGIN
+  IF NEW.post_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT fp.topic_id
+    INTO v_post_topic_id
+  FROM public.forum_posts fp
+  WHERE fp.id = NEW.post_id;
+
+  IF v_post_topic_id IS NULL THEN
+    RAISE EXCEPTION 'FORUM_REPORT_POST_NOT_FOUND' USING errcode = '23503';
+  END IF;
+
+  IF v_post_topic_id IS DISTINCT FROM NEW.topic_id THEN
+    RAISE EXCEPTION 'FORUM_REPORT_POST_TOPIC_MISMATCH' USING errcode = '23514';
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS forum_reports_validate_post_topic ON public.forum_reports;
+CREATE TRIGGER forum_reports_validate_post_topic
+BEFORE INSERT OR UPDATE OF topic_id, post_id ON public.forum_reports
+FOR EACH ROW EXECUTE FUNCTION public.validate_forum_report_post_topic();
 CREATE INDEX IF NOT EXISTS forum_reports_status_idx ON public.forum_reports(status, created_at DESC);
 CREATE TRIGGER forum_reports_set_updated_at
 BEFORE UPDATE ON public.forum_reports
