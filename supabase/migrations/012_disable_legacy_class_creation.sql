@@ -1,11 +1,32 @@
--- Student Hub v1.0.6 final self-service class workflow lock.
--- The original schema had an older create_class(text,text,integer,text,text)
--- overload that was granted to authenticated users. Revoke it so there is
--- no remaining normal-user path to create a class.
+-- Inside Code v1.8.3 migration 012
+-- Final self-service class workflow lock.
+--
+-- IMPORTANT:
+-- Migration 009 intentionally removed the legacy
+-- create_class(text,text,integer,text,text) overload and replaced it with
+-- create_class(text,class_delivery_mode,text,integer,text,text).
+-- Therefore the old overload may not exist when this migration runs.
+-- Revoke only existing functions so a fresh production database can apply
+-- the migration chain without failing on a missing overload.
 
-REVOKE ALL ON FUNCTION public.create_class(text, text, integer, text, text) FROM public, anon, authenticated;
-REVOKE ALL ON FUNCTION public.create_class(text, public.class_delivery_mode, text, integer, text, text) FROM public, anon, authenticated;
-REVOKE ALL ON FUNCTION public.join_class_by_code(text) FROM public, anon, authenticated;
+DO $$
+BEGIN
+  IF to_regprocedure('public.create_class(text, text, integer, text, text)') IS NOT NULL THEN
+    REVOKE ALL ON FUNCTION public.create_class(text, text, integer, text, text)
+      FROM public, anon, authenticated;
+  END IF;
+
+  IF to_regprocedure('public.create_class(text, public.class_delivery_mode, text, integer, text, text)') IS NOT NULL THEN
+    REVOKE ALL ON FUNCTION public.create_class(text, public.class_delivery_mode, text, integer, text, text)
+      FROM public, anon, authenticated;
+  END IF;
+
+  IF to_regprocedure('public.join_class_by_code(text)') IS NOT NULL THEN
+    REVOKE ALL ON FUNCTION public.join_class_by_code(text)
+      FROM public, anon, authenticated;
+  END IF;
+END
+$$;
 
 -- The application intentionally provisions classes and memberships outside
 -- the student client. Operators may still execute SQL directly as database
