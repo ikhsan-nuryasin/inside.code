@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Button, Card, Field } from '../components/ui';
+import { ToastHost, showToast } from '../components/ToastHost';
 import { DEMO_MODE, requireSupabase } from '../lib/supabase';
 import { nav } from '../lib/router';
 import { TurnstileCaptcha } from '../components/TurnstileCaptcha';
@@ -26,6 +27,26 @@ function getPasswordRules(value: string): PasswordRules {
   };
 }
 
+
+function friendlyAuthError(error: unknown, mode: 'login'|'register'): string {
+ const value = error as { message?: string; code?: string; status?: number } | null;
+ const message = String(value?.message ?? '').trim();
+ const msg = message.toLowerCase();
+ const code = String(value?.code ?? '').toLowerCase();
+ if(value?.status===429 || msg.includes('rate limit') || msg.includes('too many requests') || code.includes('rate_limit')) return 'Terlalu banyak percobaan. Tunggu beberapa saat lalu coba lagi.';
+ if(code==='captcha_failed' || msg.includes('captcha') || msg.includes('turnstile') || msg.includes('challenge')) return 'Verifikasi keamanan gagal. Selesaikan Turnstile lalu coba lagi.';
+ if(code==='weak_password' || msg.includes('weak password') || msg.includes('password is too weak')) return 'Password belum memenuhi kebijakan keamanan. Gunakan password yang lebih kuat.';
+ if(code==='email_address_invalid' || msg.includes('invalid email')) return 'Format alamat email tidak valid. Periksa kembali email kamu.';
+ if(code==='email_address_not_authorized' || msg.includes('email address not authorized')) return 'Email verifikasi tidak dapat dikirim ke alamat ini. Periksa konfigurasi SMTP dan domain pengirim.';
+ if(code==='signup_disabled' || msg.includes('signups not allowed') || msg.includes('signup is disabled')) return 'Pendaftaran akun sedang dinonaktifkan.';
+ if(msg.includes('error sending confirmation email') || msg.includes('failed to send confirmation email')) return 'Akun belum dapat menyelesaikan pendaftaran karena email verifikasi gagal dikirim. Periksa SMTP dan coba lagi.';
+ if(code==='database_error' || msg.includes('database error saving new user') || msg.includes('row-level security')) return 'Server gagal menyimpan akun. Coba lagi beberapa saat kemudian.';
+ if(code==='email_exists' || msg.includes('already registered') || msg.includes('user already registered') || msg.includes('already exists')) return 'Email ini sudah terdaftar. Silakan masuk menggunakan akun tersebut.';
+ if(msg.includes('invalid login credentials') || msg.includes('invalid email or password') || msg.includes('invalid credentials')) return 'Email atau password yang dimasukkan salah.';
+ if(message) return `${mode==='register'?'Pendaftaran':'Login'} gagal. Kode: ${code || value?.status || 'AUTH_ERROR'}.`;
+ return mode==='register'?'Pendaftaran gagal. Coba lagi beberapa saat kemudian.':'Login gagal. Coba lagi beberapa saat kemudian.';
+}
+
 export function AuthPage({onDone}:{onDone:()=>void}){
  const [mode,setMode]=useState<'login'|'register'>('login');
  const [name,setName]=useState(''); const [email,setEmail]=useState(''); const [password,setPassword]=useState('');
@@ -35,6 +56,8 @@ export function AuthPage({onDone}:{onDone:()=>void}){
  const [appSettings,setAppSettings]=useState<AppSettings>(DEFAULT_APP_SETTINGS);
  const refreshLock=useCallback(()=>setLockedUntil(getAuthLock(email.trim().toLowerCase())),[email]);
  useEffect(()=>{refreshLock();},[refreshLock]);
+useEffect(()=>{if(error)showToast(error,'danger',mode==='register'?'Pendaftaran gagal':'Login gagal');},[error,mode]);
+useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificationNeeded?'Perlu tindakan':'Berhasil');},[info,verificationNeeded]);
  useEffect(()=>{void getAppSettings().then(setAppSettings);},[]);
  useEffect(()=>{if(!lockedUntil)return;const id=window.setInterval(()=>{const next=getAuthLock(email.trim().toLowerCase());setLockedUntil(next);if(!next)window.clearInterval(id)},1000);return()=>window.clearInterval(id)},[lockedUntil,email]);
  const handleCaptcha=useCallback((token:string)=>setCaptchaToken(token),[]);
@@ -108,7 +131,7 @@ export function AuthPage({onDone}:{onDone:()=>void}){
          }
          const invalidCredentials = msg.includes('invalid login credentials') || msg.includes('invalid email or password') || msg.includes('invalid credentials');
          if(!invalidCredentials){
-           throw new Error('Layanan login sedang bermasalah. Silakan coba lagi beberapa saat.');
+           throw new Error(friendlyAuthError(error,'login'));
          }
          const locked=recordAuthFailure(submittedEmail);
          if(locked){setLockedUntil(locked);throw new Error('Terlalu banyak percobaan login gagal. Akun/perangkat dikunci sementara.');}
@@ -137,7 +160,7 @@ export function AuthPage({onDone}:{onDone:()=>void}){
            throw new Error('Terlalu banyak percobaan. Coba lagi beberapa saat kemudian.');
          }
          if(msg.includes('already registered')||msg.includes('already exists')) { setInfo('Jika alamat email dapat digunakan, instruksi pendaftaran/verifikasi akan tersedia di email tersebut.'); return; }
-         throw new Error('Pendaftaran tidak dapat diproses saat ini.');
+         throw new Error(friendlyAuthError(error,'register'));
        }
        clearAuthFailures(submittedEmail);
        if(data.session && data.user?.email_confirmed_at){onDone();}else{setVerificationNeeded(true);setInfo('Akun dibuat. Cek email untuk verifikasi sebelum login. Jika link kedaluwarsa, gunakan tombol kirim ulang.');}
@@ -157,12 +180,12 @@ export function AuthPage({onDone}:{onDone:()=>void}){
    }catch(err){
      const msg = err instanceof Error ? err.message.toLowerCase() : '';
      if(msg.includes('captcha') || msg.includes('turnstile') || msg.includes('challenge')) setError('Verifikasi CAPTCHA gagal. Selesaikan CAPTCHA lalu coba lagi.');
-     else setError('Permintaan reset tidak dapat diproses saat ini.');
+     else setError(friendlyAuthError(err,'login'));
    }
    finally{setCaptchaToken('');setCaptchaReset(v=>v+1);}
  };
  const remainingMinutes=lockedUntil?Math.max(1,Math.ceil((lockedUntil-Date.now())/60000)):0;
- return <div className="auth-layout">
+ return <><ToastHost/><div className="auth-layout">
    <div className="auth-hero"><div className="hero-mark"><img src={appSettings.logo_url||'/icon.svg'} alt={appSettings.app_name} /></div><span className="eyebrow">{appSettings.app_name} · Mahasiswa</span><h1>{appSettings.login_title}</h1><p>{appSettings.login_description}</p><div className="hero-bullets"><span>Session aman</span><span>CAPTCHA & rate limit</span><span>Mahasiswa-only</span></div></div>
    <Card className="auth-card">
      <div className="tabs"><button className={mode==='login'?'active':''} onClick={()=>switchMode('login')}>Masuk</button><button className={mode==='register'?'active':''} onClick={()=>switchMode('register')}>Daftar</button></div>
@@ -192,5 +215,5 @@ export function AuthPage({onDone}:{onDone:()=>void}){
        {DEMO_MODE&&<p className="demo-note">Demo mode aktif. CAPTCHA production tidak diperlukan.</p>}
      </form>
    </Card>
- </div>;
+ </div></>;
 }

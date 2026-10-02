@@ -2559,3 +2559,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .password-rules span{color:var(--muted,#6f7f95);}
 .password-rules span.valid{color:var(--success,#16845b);}
 @media (max-width:680px){.password-rules{grid-template-columns:1fr;}}
+
+/* V1.8.13: clear authentication/application notification popups */
+.toast-stack{position:fixed;left:50%;right:auto;top:82px;bottom:auto;transform:translateX(-50%);z-index:300;width:min(520px,calc(100vw - 32px));display:grid;gap:12px;pointer-events:none}
+.app-toast{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:start;gap:12px;box-sizing:border-box;width:100%;padding:15px 16px 18px;border:1px solid #dbe6ef;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(17,45,70,.18);font-size:14px;color:#29455d;pointer-events:auto;animation:inside-code-popup-in .22s ease-out}
+.toast-copy{min-width:0}.toast-copy strong{display:block;margin-bottom:5px;font-size:15px;line-height:1.25;color:#173957}.toast-copy p{margin:0;font-size:13px;line-height:1.55;color:#5d7489;overflow-wrap:anywhere}
+.toast-mark{width:40px;height:40px;border-radius:13px;display:grid;place-items:center;font-size:18px;font-weight:900;background:#eaf4ff;color:#087cf9}.toast-good .toast-mark{background:#e9fbf4;color:#1da878}.toast-warn .toast-mark{background:#fff4df;color:#b47a0a}.toast-danger .toast-mark{background:#ffecec;color:#c54d55}
+.toast-close{width:30px;height:30px;border:0;border-radius:9px;background:#f2f6f9;color:#73899a;font-size:20px;line-height:1;cursor:pointer}.toast-close:hover{background:#e8eef3}.toast-progress{position:absolute;left:0;bottom:0;height:3px;width:100%;transform-origin:left center;background:#87bdf0;animation:inside-code-popup-progress var(--toast-duration,5200ms) linear forwards}.toast-danger .toast-progress{background:#dd6b73}.toast-warn .toast-progress{background:#d6a447}.toast-good .toast-progress{background:#55b88f}
+@keyframes inside-code-popup-in{from{opacity:0;transform:translateY(-10px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}@keyframes inside-code-popup-progress{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@media(max-width:760px){.toast-stack{top:14px;width:calc(100vw - 24px)}.app-toast{grid-template-columns:38px minmax(0,1fr) 30px;gap:10px;padding:12px 12px 15px;border-radius:16px}.toast-mark{width:36px;height:36px;border-radius:11px;font-size:16px}.toast-copy strong{font-size:14px}.toast-copy p{font-size:12px;line-height:1.5}.toast-close{width:28px;height:28px;font-size:18px}}
+@media(prefers-reduced-motion:reduce){.app-toast,.toast-progress{animation:none!important}}
