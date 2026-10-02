@@ -36,7 +36,7 @@ jobs:
           grep -q "to_regprocedure('public.create_class(text, text, integer, text, text)')" \
             supabase/migrations/012_disable_legacy_class_creation.sql
 
-      - name: Push database migrations
+      - name: Push database migrations (001-030)
         run: |
           printf 'y\n' | supabase db push \
             --project-ref "$SUPABASE_PROJECT_ID" \

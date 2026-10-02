@@ -1,14 +1,24 @@
-# Inside Code v1.8.3
+# Inside Code
 
-Production-ready React/Vite PWA for mahasiswa with Supabase, Cloudflare Turnstile, Web Push, offline cache, and application branding settings.
+Inside Code is a React/Vite PWA for mahasiswa with Supabase backend, Cloudflare Turnstile, Web Push, offline support, and admin-managed branding.
 
-## Struktur
-- `web/` — frontend Vite/React dan Cloudflare Worker asset configuration.
-- `supabase/` — migrations dan Edge Function push notification.
-- `DEPLOY_GITHUB_SUPABASE_CLOUDFLARE.md` — langkah deploy production.
-- `INSIDE_CODE_V1_8_3_CHANGELOG.md` — perubahan dan bug fixes.
+## Repository structure
 
-## Local
+```text
+web/                    React + Vite frontend + Cloudflare Worker assets
+supabase/migrations/    Database migrations 001–030
+supabase/functions/     Edge Functions
+.github/workflows/      Supabase CI/CD
+
+docs/DEPLOYMENT.md      Deployment instructions
+docs/SECURITY.md        Security notes
+CHANGELOG.md            Release history
+```
+
+## Frontend local setup
+
+Copy the environment template to `.env` when needed for local testing:
+
 ```powershell
 cd web
 npm install
@@ -17,4 +27,10 @@ npm run build
 npm run dev
 ```
 
-`web/.env` hanya untuk lokal dan diabaikan oleh Git. Untuk Cloudflare, masukkan semua `VITE_*` pada Build variables.
+`web/.env` is local-only and ignored by Git. Never force-add it.
+
+## Production deployment
+
+Use the existing GitHub repository and the GitHub Actions workflow for Supabase. Cloudflare Workers Builds deploys the `web/` application from `main`.
+
+See `docs/DEPLOYMENT.md`.

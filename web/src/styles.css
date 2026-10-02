@@ -2547,7 +2547,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .captcha-retry{margin-top:6px;border:0;background:transparent;color:#087cf9;font-size:9px;font-weight:800;padding:0;cursor:pointer}
 
 
-/* Inside Code v1.8.3: centralized primary-color overrides */
+/* Inside Code v1.8.4: centralized primary-color overrides */
 .btn-primary{background:var(--blue,#087cf9)!important}
 .inline-link,.link-btn,.module-crosslinks button,.context-open-link,.mobile-section-title button,.mobile-page-head .mobile-head-icon,.quick-access-grid button span,.mobile-task-icon,.mobile-schedule-icon,.mobile-class-icon,.mobile-class-row .mobile-class-icon{color:var(--blue,#087cf9)}
 .mobile-pills .active,.cash-month-strip button.active{background:var(--blue,#087cf9)!important;border-color:var(--blue,#087cf9)!important}
