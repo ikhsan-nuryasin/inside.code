@@ -1,3 +1,4 @@
+import { localDateISO } from '../lib/date';
 import { useEffect, useRef, useState } from 'react';
 import { nav } from '../lib/router';
 import { notificationTargetHref } from '../lib/notification-target';
@@ -33,7 +34,7 @@ export function NotificationPopup(){
         return id===candidate.id && new Date(n.created_at).getTime()>Date.now()-26*60*60*1000;
       });
       if(serverReminderAlreadyCreated)return;
-      const key=`inside-code-reminder-shown:${candidate.id}:${new Date().toISOString().slice(0,10)}`;
+      const key=`inside-code-reminder-shown:${candidate.id}:${localDateISO()}`;
       if(localStorage.getItem(key))return;
       localStorage.setItem(key,String(Date.now()));
       show(reminderFromTask(candidate));

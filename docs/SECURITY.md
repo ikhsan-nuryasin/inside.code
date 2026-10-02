@@ -1,14 +1,15 @@
 # Inside Code — Security Notes
 
-## Client secrets
+## Browser variables
 
-Frontend hanya boleh menerima nilai `VITE_*` yang memang aman untuk browser:
+Yang boleh masuk bundle browser hanya konfigurasi publik:
 
 ```text
 VITE_SUPABASE_URL
 VITE_SUPABASE_PUBLISHABLE_KEY
 VITE_VAPID_PUBLIC_KEY
 VITE_TURNSTILE_SITE_KEY
+VITE_CAPTCHA_REQUIRED
 ```
 
 Jangan pernah memasukkan:
@@ -21,29 +22,40 @@ VAPID_PRIVATE_JWK
 PUSH_WEBHOOK_SECRET
 ```
 
-ke bundle frontend.
+## Auth
 
-## Database hardening
+Inside Code selalu menggunakan Supabase Auth. Tidak ada bypass login atau Demo Mode.
 
-Migration `030_security_hardening.sql`:
+CAPTCHA/Turnstile diterapkan pada alur autentikasi yang dipakai aplikasi.
 
-- menetapkan `search_path` untuk function yang sebelumnya mutable;
-- mencabut akses Data API langsung terhadap function trigger/internal yang terdeteksi bisa dijalankan oleh `anon`;
-- mempertahankan `authenticated` hanya untuk RPC yang memang digunakan aplikasi;
-- tidak mengubah RLS business rules yang sudah berjalan.
+MFA/TOTP dapat digunakan untuk akun yang membutuhkan verifikasi dua langkah.
 
-Sebagian `SECURITY DEFINER` yang memang menjadi helper RPC aplikasi tetap tersedia untuk `authenticated`. Itu harus tetap diaudit sesuai kebutuhan fitur.
+## RLS
 
-## Storage branding
+Migration `034_restore_rls_helper_exec_and_fix_app_admin.sql` melakukan dua koreksi penting:
 
-Bucket `app-assets` boleh dibaca publik agar logo dapat tampil sebelum login. Tulis/hapus hanya untuk app admin dan hanya pada prefix `branding/`.
+1. Mengembalikan `EXECUTE` untuk helper authorization yang memang dipanggil oleh RLS policy. Tanpa privilege ini, query authenticated dapat gagal saat policy menjalankan helper tersebut.
+2. Menghapus `class_members.role = 'admin'` sebagai sumber global app-admin. Global administrator hanya berasal dari tabel `system_admins`.
 
-## Push
+## Storage
 
-VAPID private key dan webhook secret hanya berada di Supabase Edge Function Secrets.
+Bucket `app-assets` boleh dibaca publik agar branding dapat tampil sebelum login. Operasi tulis/ubah/hapus dibatasi dengan fungsi `is_app_admin()` dan prefix `branding/`.
 
-## Releases
+## Offline data
 
-Database migrations are append-only. Do not delete or rewrite migrations that have already been applied to the hosted Supabase project.
+Cache dan file offline berada di IndexedDB. Logout semua perangkat harus membersihkan data lokal agar sesi berikutnya tidak membaca cache/queue lama.
 
-The frontend has no demo mode and must use the production Supabase configuration supplied through `VITE_*` environment variables.
+## Release hygiene
+
+Jangan commit:
+
+```text
+.env
+.env.local
+.env.production
+node_modules/
+dist/
+supabase/.temp/
+```
+
+Perubahan database production dilakukan melalui migration baru dan bukan dengan mengedit migration lama.

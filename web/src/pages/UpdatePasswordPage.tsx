@@ -11,7 +11,6 @@ export function UpdatePasswordPage({onDone}:{onDone:()=>void}) {
     e.preventDefault(); setError('');
     if(password.length<8) return setError('Password minimal 8 karakter.');
     if(password!==confirm) return setError('Konfirmasi password tidak sama.');
-
     setBusy(true);
     try {
       const {error}=await requireSupabase().auth.updateUser({password});

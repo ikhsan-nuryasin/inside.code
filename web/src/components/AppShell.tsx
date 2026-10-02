@@ -50,7 +50,7 @@ export function AppShell({children}:{children:ReactNode}){
  useEffect(()=>{const on=()=>setUpdate(true);window.addEventListener('inside-code-sw-update',on);return()=>window.removeEventListener('inside-code-sw-update',on)},[]);
  const active=route.name==='class'?'classes':route.name;
  const visibleNav=baseNav.filter(([key])=>key!=='positions'||positions.some(p=>p==='ketua'||p==='wakil_ketua')).filter(([key])=>key!=='admin'||systemAdmin);
- const logout=async()=>{if(supabase)await supabase.auth.signOut({scope:'local'});await clearLocalData();nav('/dashboard');location.reload()};
+ const logout=async()=>{if(supabase)await supabase.auth.signOut();await clearLocalData();nav('/dashboard');location.reload()};
  return <div className="shell">
   <aside className="sidebar">
    <button className="brand" onClick={()=>nav('/dashboard')} aria-label={appSettings.app_name}><span className="brand-icon" aria-hidden="true"><img src={appSettings.logo_url||'/icon.svg'} alt="" /></span><span><strong>{appSettings.short_name}</strong><small>{appSettings.tagline}</small></span></button>

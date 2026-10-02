@@ -100,7 +100,7 @@ function MfaGateApp({ route, setSignedIn }: { route: Route; setSignedIn: (value:
 
 export default function App() {
   const route = useRoute();
-  const [ready, setReady] = useState(SUPABASE_CONFIGURED);
+  const [ready, setReady] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
@@ -118,5 +118,5 @@ export default function App() {
   if (route.name === 'update-password') return <UpdatePasswordPage onDone={() => { nav('/dashboard'); location.reload(); }} />;
   if (!signedIn) return <AuthPage onDone={() => setSignedIn(true)} />;
   if (supabase) return <MfaGateApp route={route} setSignedIn={setSignedIn} />;
-  return <AppShell>{renderPage(route)}<NotificationPopup /></AppShell>;
+  return <div className="loading-screen"><div className="card"><strong>Supabase belum tersedia.</strong><p className="muted">Periksa konfigurasi environment lalu muat ulang aplikasi.</p></div></div>;
 }

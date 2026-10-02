@@ -35,7 +35,7 @@ jobs:
         run: |
           grep -q "to_regprocedure('public.create_class(text, text, integer, text, text)')" \
             supabase/migrations/012_disable_legacy_class_creation.sql
-          test -f supabase/migrations/034_restore_rls_function_execute_and_global_admin.sql
+          test -f supabase/migrations/033_security_definer_execute_hardening.sql
 
       - name: Push database migrations (001-034)
         run: |

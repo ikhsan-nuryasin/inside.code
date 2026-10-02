@@ -1,0 +1,5 @@
+Inside Code authentication email templates
+Hosted Supabase: copy each HTML body into Authentication > Email Templates,
+or run ../scripts/apply-auth-email-templates.mjs with SUPABASE_ACCESS_TOKEN.
+These templates intentionally use {{ .ConfirmationURL }} so email redirects
+follow the redirect URL supplied by the application instead of hard-coding localhost.

@@ -1,70 +1,74 @@
-# Inside Code v1.8.16
+# Inside Code
 
-Production React/Vite PWA for the Inside Code student class platform.
+Inside Code adalah PWA mobile-first untuk workspace kelas mahasiswa.
 
-This release is prepared for GitHub + Cloudflare Workers Builds + Supabase hosted production.
+## Fitur utama
 
-## v1.8.16 production fixes
+- Dashboard kelas
+- Jadwal dan kalender
+- Tugas + checklist + progress
+- Materi dan file
+- Forum kelas
+- Kelompok dan pembagian ketua
+- Kas kelas
+- Dokumentasi/album
+- Catatan pribadi dan catatan bersama
+- Pengumuman dan notifikasi
+- Web Push
+- CAPTCHA/Turnstile
+- MFA/TOTP
+- Offline cache dan sinkronisasi saat online kembali
+- Pengaturan branding aplikasi untuk system admin
 
-- Removes the demo-mode code path completely; the app now requires the real Supabase project.
-- Restores EXECUTE privileges required by authenticated RLS helper functions after migration 033.
-- Removes the legacy `class_members.role='admin'` path from global application-admin authorization.
-- Fixes offline file caching and clears local offline data when ending all sessions.
-- Updates the service-worker cache namespace to v1.8.16.
+## Stack
 
-## What this release fixes
+- React + TypeScript + Vite
+- Supabase Auth + Postgres + Storage + Edge Functions
+- Cloudflare Workers Assets
+- IndexedDB untuk cache/queue/file offline
 
-- Corrects Supabase email verification redirects so signup/resend links return to the current app origin instead of falling back to `localhost:3000`.
-- Detects `otp_expired` / `access_denied` verification-link failures and provides a resend-verification action.
-- Keeps Supabase as the authoritative password policy; frontend password rules are advisory only.
-- Keeps CAPTCHA on login, signup, recovery, and resend flows.
-- Provides branded Supabase Auth email templates.
-- Advances the service-worker cache namespace to v1.8.16.
-- Uses Cloudflare Build settings documented in `docs/DEPLOYMENT.md`.
-
-## Repository layout
+## Struktur
 
 ```text
-.github/workflows/      Supabase deployment workflow
-supabase/migrations/    Database migrations 001 → 034
-supabase/functions/     Edge Function(s)
-supabase/email-templates Custom Auth email HTML
-supabase/scripts/        Management API helper for templates
-web/                    React/Vite frontend
+web/                    Frontend PWA
+supabase/migrations/    Database schema, RLS, function, trigger, policy
+supabase/functions/     Edge Functions
+supabase/email-templates/  Template email Auth
+docs/                   Dokumentasi deployment dan security
+.github/workflows/      Automation deployment Supabase
 ```
 
-## Production Cloudflare settings
+## Local development
+
+Buat `web/.env` dari `web/.env.example`, isi nilai production/test milik proyek Supabase, lalu:
+
+```powershell
+cd web
+npm install
+npm run typecheck
+npm run build
+npm run dev
+```
+
+Aplikasi tidak memiliki Demo Mode. Environment Supabase harus tersedia agar aplikasi dapat melakukan autentikasi dan membaca data.
+
+## Production deployment
+
+Frontend memakai Cloudflare Workers/Assets. Database dan Edge Function memakai Supabase.
 
 ```text
-Root directory: web
-Build variable: SKIP_DEPENDENCY_INSTALL=true
+Cloudflare Build root: web
 Build command: npm install --include=dev --no-audit --no-fund && npm run build
 Deploy command: npx wrangler deploy
 ```
 
-Production frontend variables:
+Lihat:
 
-```text
-VITE_SUPABASE_URL=https://nxjwctumtkgcyghuzfwm.supabase.co
-VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
-VITE_VAPID_PUBLIC_KEY=<vapid-public-key>
-VITE_CAPTCHA_REQUIRED=true
-VITE_TURNSTILE_SITE_KEY=<turnstile-site-key>
-```
+- `docs/DEPLOYMENT.md`
+- `docs/SECURITY.md`
 
-Never commit `.env`, service-role keys, database passwords, SMTP passwords, Turnstile secret keys, VAPID private keys, or webhook secrets.
+## Supabase migrations
 
-## Custom email
+Migration terbaru pada source ini adalah `034_restore_rls_helper_exec_and_fix_app_admin.sql`.
 
-Hosted Supabase projects are configured from Authentication → Email Templates. The package includes:
-
-- `confirmation.html`
-- `recovery.html`
-- `magic_link.html`
-- `email_change.html`
-- `invite.html`
-- `reauthentication.html`
-
-Use `{{ .ConfirmationURL }}` in link buttons. Do not hard-code `localhost` into the email templates.
-
-See `supabase/email-templates/README.md` and `docs/DEPLOYMENT.md`.
+Jangan mengubah migration yang sudah pernah diterapkan di project production. Untuk koreksi berikutnya, tambahkan migration baru secara berurutan.

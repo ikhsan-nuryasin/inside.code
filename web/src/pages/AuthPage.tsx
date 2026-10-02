@@ -106,7 +106,6 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
    setPassword(submittedPassword);
 
    try{
-
      const lock=getAuthLock(submittedEmail); if(lock){setLockedUntil(lock); throw new Error(`Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil((lock-Date.now())/60000)} menit.`)}
      if(CAPTCHA_REQUIRED && !CAPTCHA_CONFIGURED) throw new Error('CAPTCHA belum dikonfigurasi di build production. Hubungi administrator.');
      if(CAPTCHA_REQUIRED && !captchaToken) throw new Error('Selesaikan verifikasi keamanan terlebih dahulu.');
@@ -170,7 +169,6 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
  };
  const reset=async()=>{
    setError('');setInfo('');
-
    if(!email.trim()){setError('Masukkan email akun terlebih dahulu.');return;}
    if(CAPTCHA_REQUIRED&&!captchaToken){setError('Selesaikan verifikasi keamanan terlebih dahulu.');return;}
    try{
@@ -205,7 +203,7 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
          </div>
        </div>}
        {mode==='login'&&<button type="button" className="inline-link" onClick={()=>void reset()}>Lupa password?</button>}
-       {CAPTCHA_CONFIGURED&&<TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>}
+       <TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>
        {lockedUntil > 0 && <div className="alert alert-warning" role="alert">Login sementara dikunci. Coba lagi sekitar {remainingMinutes} menit.</div>}
        {error&&<div className="alert alert-danger" role="alert">{error}</div>}
        {info&&<div className="alert alert-info" role="status">{info}</div>}
