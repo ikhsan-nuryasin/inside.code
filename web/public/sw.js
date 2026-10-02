@@ -1,4 +1,4 @@
-const CACHE = "inside-code-v1.8.12-security-push";
+const CACHE = "inside-code-v1.8.16-security-push";
 const APP_SHELL = [
   "/",
   "/index.html",

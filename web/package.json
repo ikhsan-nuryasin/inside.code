@@ -1,7 +1,7 @@
 {
   "name": "inside-code-pwa",
   "private": true,
-  "version": "1.8.12",
+  "version": "1.8.16",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,7 +10,6 @@
     "typecheck": "tsc -p tsconfig.app.json --noEmit",
     "check": "npm run typecheck && npm run build",
     "prebuild": "node scripts/production-guard.mjs",
-    "build:demo": "vite build --mode demo",
     "deploy": "npx wrangler deploy"
   },
   "dependencies": {

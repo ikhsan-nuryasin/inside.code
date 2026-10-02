@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import { Button, Card, Field } from '../components/ui';
 import { ToastHost, showToast } from '../components/ToastHost';
-import { DEMO_MODE, requireSupabase } from '../lib/supabase';
+import { requireSupabase } from '../lib/supabase';
 import { nav } from '../lib/router';
 import { TurnstileCaptcha } from '../components/TurnstileCaptcha';
 import { CAPTCHA_REQUIRED, CAPTCHA_CONFIGURED } from '../lib/captcha';
@@ -106,7 +106,7 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
    setPassword(submittedPassword);
 
    try{
-     if(DEMO_MODE){ onDone(); nav('/dashboard'); return; }
+
      const lock=getAuthLock(submittedEmail); if(lock){setLockedUntil(lock); throw new Error(`Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil((lock-Date.now())/60000)} menit.`)}
      if(CAPTCHA_REQUIRED && !CAPTCHA_CONFIGURED) throw new Error('CAPTCHA belum dikonfigurasi di build production. Hubungi administrator.');
      if(CAPTCHA_REQUIRED && !captchaToken) throw new Error('Selesaikan verifikasi keamanan terlebih dahulu.');
@@ -170,7 +170,7 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
  };
  const reset=async()=>{
    setError('');setInfo('');
-   if(DEMO_MODE){setInfo('Demo mode tidak membutuhkan reset password.');return;}
+
    if(!email.trim()){setError('Masukkan email akun terlebih dahulu.');return;}
    if(CAPTCHA_REQUIRED&&!captchaToken){setError('Selesaikan verifikasi keamanan terlebih dahulu.');return;}
    try{
@@ -205,14 +205,13 @@ useEffect(()=>{if(info)showToast(info,verificationNeeded?'warn':'good',verificat
          </div>
        </div>}
        {mode==='login'&&<button type="button" className="inline-link" onClick={()=>void reset()}>Lupa password?</button>}
-       {!DEMO_MODE&&<TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>} 
+       {CAPTCHA_CONFIGURED&&<TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>}
        {lockedUntil > 0 && <div className="alert alert-warning" role="alert">Login sementara dikunci. Coba lagi sekitar {remainingMinutes} menit.</div>}
        {error&&<div className="alert alert-danger" role="alert">{error}</div>}
        {info&&<div className="alert alert-info" role="status">{info}</div>}
        {verificationNeeded&&<div className="alert alert-warning" role="status"><strong>Email belum terverifikasi?</strong><p className="muted">Pastikan kamu memasukkan alamat email yang benar dan gunakan link verifikasi terbaru.</p><Button type="button" variant="soft" disabled={resendBusy||busy} onClick={()=>void resendVerification()}>{resendBusy?'Mengirim…':'Kirim ulang email verifikasi'}</Button></div>}
        <Button type="submit" disabled={busy||Boolean(lockedUntil)}>{busy?'Memproses…':mode==='login'?'Masuk':'Buat akun'}</Button>
        <p className="auth-security-note">Autentikasi dilindungi Supabase Auth, rate limit, dan CAPTCHA. Aplikasi tidak menyimpan password mentah.</p>
-       {DEMO_MODE&&<p className="demo-note">Demo mode aktif. CAPTCHA production tidak diperlukan.</p>}
      </form>
    </Card>
  </div></>;

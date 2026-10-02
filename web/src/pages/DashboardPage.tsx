@@ -4,8 +4,7 @@ import { getClassPosition, listAnnouncements, listAssignments, listClasses, list
 import type { Announcement, Assignment, ClassPositionRecord, ClassRecord, Schedule } from '../types/models';
 import { getActiveClassId, nav, setActiveClassId } from '../lib/router';
 import { POSITION_LABEL } from '../lib/permissions';
-import { DEMO_MODE, supabase } from '../lib/supabase';
-import { demoProfile } from '../lib/demo';
+
 
 
 function HomeGlyph({name}:{name:'class'|'task'|'calendar'|'cash'|'notification'|'arrow'}){
@@ -25,16 +24,10 @@ export function DashboardPage(){
  const [tasks,setTasks]=useState<(Assignment&{className:string})[]>([]);
  const [schedule,setSchedule]=useState<(Schedule&{className:string;delivery_mode:'offline'|'online'})[]>([]);
  const [ann,setAnn]=useState<(Announcement&{className:string})[]>([]);
- const [displayName,setDisplayName]=useState(DEMO_MODE?demoProfile.full_name:'Mahasiswa');
+ const [displayName,setDisplayName]=useState('Mahasiswa');
  const [positions,setPositions]=useState<(ClassPositionRecord&{className:string})[]>([]);
  const [error,setError]=useState('');
  useEffect(()=>{(async()=>{try{
-   try {
-     if (DEMO_MODE) setDisplayName(demoProfile.full_name);
-     else if (supabase) { const {data}=await supabase.auth.getSession(); setDisplayName(data.session?.user.user_metadata?.full_name || data.session?.user.email?.split('@')[0] || 'Mahasiswa'); }
-     else { const p=await getProfile(); setDisplayName(p?.full_name || 'Mahasiswa'); }
-   } catch {}
-
    const cs=await listClasses();
    const stored=getActiveClassId();
    const preferred=cs.find(c=>c.id===stored)?.id||cs[0]?.id||'';
@@ -48,6 +41,8 @@ export function DashboardPage(){
    setSchedule(rows.flatMap(r=>r.s.map(x=>({...x,className:r.classRecord.name,delivery_mode:r.classRecord.delivery_mode}))));
    setAnn(rows.flatMap(r=>r.a.map(x=>({...x,className:r.classRecord.name}))));
    setPositions(rows.flatMap(r=>r.p?[{...r.p,className:r.classRecord.name}]:[]));
+   const profile=await getProfile();
+   if(profile?.full_name) setDisplayName(profile.full_name);
  }catch(e){setError(e instanceof Error?e.message:'Gagal memuat dashboard.')}})()},[]);
  const nowDate=new Date();
  const currentDay=nowDate.getDay()===0?7:nowDate.getDay();

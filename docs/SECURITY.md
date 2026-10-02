@@ -41,3 +41,9 @@ Bucket `app-assets` boleh dibaca publik agar logo dapat tampil sebelum login. Tu
 ## Push
 
 VAPID private key dan webhook secret hanya berada di Supabase Edge Function Secrets.
+
+## Releases
+
+Database migrations are append-only. Do not delete or rewrite migrations that have already been applied to the hosted Supabase project.
+
+The frontend has no demo mode and must use the production Supabase configuration supplied through `VITE_*` environment variables.

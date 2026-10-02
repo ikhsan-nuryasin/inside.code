@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Card, Field } from '../components/ui';
-import { DEMO_MODE, requireSupabase } from '../lib/supabase';
+import { requireSupabase } from '../lib/supabase';
 
 export function UpdatePasswordPage({onDone}:{onDone:()=>void}) {
   const [password,setPassword]=useState('');
@@ -11,7 +11,7 @@ export function UpdatePasswordPage({onDone}:{onDone:()=>void}) {
     e.preventDefault(); setError('');
     if(password.length<8) return setError('Password minimal 8 karakter.');
     if(password!==confirm) return setError('Konfirmasi password tidak sama.');
-    if(DEMO_MODE) return setError('Demo mode tidak membutuhkan reset password.');
+
     setBusy(true);
     try {
       const {error}=await requireSupabase().auth.updateUser({password});

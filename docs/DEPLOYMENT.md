@@ -1,4 +1,4 @@
-# Inside Code v1.8.12 — Production Deployment
+# Inside Code v1.8.16 — Production Deployment
 
 ## A. Cloudflare Workers Builds
 
@@ -19,7 +19,6 @@ Deploy command: npx wrangler deploy
 Required production build variables:
 
 ```text
-VITE_DEMO_MODE=false
 VITE_SUPABASE_URL=https://nxjwctumtkgcyghuzfwm.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
 VITE_VAPID_PUBLIC_KEY=<vapid-public-key>
@@ -96,7 +95,7 @@ Project ref:
 nxjwctumtkgcyghuzfwm
 ```
 
-The workflow pushes migrations `001 → 031` and deploys `send-notification-push`.
+The workflow pushes migrations `001 → 034` and deploys `send-notification-push`.
 
 ## F. Local verification
 
@@ -111,7 +110,6 @@ npm run dev
 The current production guard requires:
 
 ```text
-VITE_DEMO_MODE=false
 ```
 
 for production builds.
@@ -137,4 +135,4 @@ Test in this order:
 
 ## H. Caching
 
-Service-worker cache namespace is `inside-code-v1.8.12-security-push`. After deploying a new version during testing, use a hard refresh or an incognito window to avoid an older cached bundle.
+Service-worker cache namespace is `inside-code-v1.8.16-security-push`. After deploying a new version during testing, use a hard refresh or an incognito window to avoid an older cached bundle.

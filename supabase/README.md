@@ -3,10 +3,10 @@
 Migrations are applied in numeric order:
 
 ```text
-001 → 002 → 003 → ... → 029 → 030
+001 → 002 → 003 → ... → 032 → 033 → 034
 ```
 
-`030_security_hardening.sql` is the post-deployment security hardening migration.
+`033_security_definer_execute_hardening.sql` tightened function execution privileges. `034_restore_rls_function_execute_and_global_admin.sql` restores the EXECUTE privileges required by RLS helper functions and removes the legacy class-member admin path from global application-admin authorization.
 
 The `send-notification-push` Edge Function lives under:
 

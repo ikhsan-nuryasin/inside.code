@@ -1,5 +1,6 @@
 {
   "devDependencies": {
     "supabase": "^2.119.0"
-  }
+  },
+  "name": "inside-code-supabase-tools"
 }

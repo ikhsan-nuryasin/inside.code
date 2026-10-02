@@ -35,9 +35,9 @@ jobs:
         run: |
           grep -q "to_regprocedure('public.create_class(text, text, integer, text, text)')" \
             supabase/migrations/012_disable_legacy_class_creation.sql
-          test -f supabase/migrations/031_normalize_legacy_branding.sql
+          test -f supabase/migrations/034_restore_rls_function_execute_and_global_admin.sql
 
-      - name: Push database migrations (001-031)
+      - name: Push database migrations (001-034)
         run: |
           printf 'y\n' | supabase db push \
             --project-ref "$SUPABASE_PROJECT_ID" \

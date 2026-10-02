@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, Card, Field } from '../components/ui';
-import { DEMO_MODE, supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 
 export function MfaChallengePage({ onVerified, onLogout }: { onVerified: () => void; onLogout: () => Promise<void> }) {
   const [factorId, setFactorId] = useState('');
@@ -10,7 +10,7 @@ export function MfaChallengePage({ onVerified, onLogout }: { onVerified: () => v
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (DEMO_MODE || !supabase) return;
+    if (!supabase) return;
     let cancelled = false;
     (async () => {
       try {

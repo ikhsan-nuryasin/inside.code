@@ -1,3 +1,0 @@
-The project contains web/.env for local testing only. It is ignored by Git.
-For Cloudflare production, configure the same VITE_* values in Workers Builds Variables and Secrets.
-Never commit private/server-side secrets.

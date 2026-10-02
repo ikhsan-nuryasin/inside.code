@@ -13,7 +13,7 @@ import { CashPage } from './pages/CashPage';
 import { DocumentationPage } from './pages/DocumentationPage';
 import { PositionsPage } from './pages/PositionsPage';
 import { SearchPage } from './pages/SearchPage';
-import { DEMO_MODE, SUPABASE_CONFIGURED, supabase } from './lib/supabase';
+import { SUPABASE_CONFIGURED, supabase } from './lib/supabase';
 import { UpdatePasswordPage } from './pages/UpdatePasswordPage';
 import { RandomizerPage } from './pages/RandomizerPage';
 import { HelpPage } from './pages/HelpPage';
@@ -100,11 +100,10 @@ function MfaGateApp({ route, setSignedIn }: { route: Route; setSignedIn: (value:
 
 export default function App() {
   const route = useRoute();
-  const [ready, setReady] = useState(DEMO_MODE || SUPABASE_CONFIGURED);
-  const [signedIn, setSignedIn] = useState(DEMO_MODE);
+  const [ready, setReady] = useState(SUPABASE_CONFIGURED);
+  const [signedIn, setSignedIn] = useState(false);
 
   useEffect(() => {
-    if (DEMO_MODE) { setReady(true); return; }
     if (!SUPABASE_CONFIGURED || !supabase) { setReady(true); return; }
     let mounted = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -115,9 +114,9 @@ export default function App() {
   }, []);
 
   if (!ready) return <div className="loading-screen"><div className="spinner" /><strong>Menyiapkan Inside Code…</strong></div>;
-  if (!DEMO_MODE && !SUPABASE_CONFIGURED) return <div className="loading-screen"><div className="card" style={{ maxWidth: 520 }}><strong>Konfigurasi Supabase belum lengkap.</strong><p className="muted">Isi VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY di web/.env.local, lalu restart server.</p></div></div>;
+  if (!SUPABASE_CONFIGURED) return <div className="loading-screen"><div className="card" style={{ maxWidth: 520 }}><strong>Konfigurasi Supabase belum lengkap.</strong><p className="muted">Isi VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY di web/.env.local, lalu restart server.</p></div></div>;
   if (route.name === 'update-password') return <UpdatePasswordPage onDone={() => { nav('/dashboard'); location.reload(); }} />;
   if (!signedIn) return <AuthPage onDone={() => setSignedIn(true)} />;
-  if (!DEMO_MODE && supabase) return <MfaGateApp route={route} setSignedIn={setSignedIn} />;
+  if (supabase) return <MfaGateApp route={route} setSignedIn={setSignedIn} />;
   return <AppShell>{renderPage(route)}<NotificationPopup /></AppShell>;
 }

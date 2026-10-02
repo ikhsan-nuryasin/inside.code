@@ -1,8 +1,16 @@
-# Inside Code v1.8.12
+# Inside Code v1.8.16
 
 Production React/Vite PWA for the Inside Code student class platform.
 
 This release is prepared for GitHub + Cloudflare Workers Builds + Supabase hosted production.
+
+## v1.8.16 production fixes
+
+- Removes the demo-mode code path completely; the app now requires the real Supabase project.
+- Restores EXECUTE privileges required by authenticated RLS helper functions after migration 033.
+- Removes the legacy `class_members.role='admin'` path from global application-admin authorization.
+- Fixes offline file caching and clears local offline data when ending all sessions.
+- Updates the service-worker cache namespace to v1.8.16.
 
 ## What this release fixes
 
@@ -11,14 +19,14 @@ This release is prepared for GitHub + Cloudflare Workers Builds + Supabase hoste
 - Keeps Supabase as the authoritative password policy; frontend password rules are advisory only.
 - Keeps CAPTCHA on login, signup, recovery, and resend flows.
 - Provides branded Supabase Auth email templates.
-- Advances the service-worker cache namespace to v1.8.12.
+- Advances the service-worker cache namespace to v1.8.16.
 - Uses Cloudflare Build settings documented in `docs/DEPLOYMENT.md`.
 
 ## Repository layout
 
 ```text
 .github/workflows/      Supabase deployment workflow
-supabase/migrations/    Database migrations 001 → 031
+supabase/migrations/    Database migrations 001 → 034
 supabase/functions/     Edge Function(s)
 supabase/email-templates Custom Auth email HTML
 supabase/scripts/        Management API helper for templates
@@ -37,7 +45,6 @@ Deploy command: npx wrangler deploy
 Production frontend variables:
 
 ```text
-VITE_DEMO_MODE=false
 VITE_SUPABASE_URL=https://nxjwctumtkgcyghuzfwm.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=<publishable-key>
 VITE_VAPID_PUBLIC_KEY=<vapid-public-key>

@@ -24,17 +24,12 @@ const fileEnv = {
   ...readEnvFile('.env.production.local'),
 };
 const env = { ...fileEnv, ...process.env };
-const mode = String(env.VITE_DEMO_MODE ?? '').trim().toLowerCase();
 const url = String(env.VITE_SUPABASE_URL ?? '').trim();
 const key = String(env.VITE_SUPABASE_PUBLISHABLE_KEY ?? '').trim();
 const vapid = String(env.VITE_VAPID_PUBLIC_KEY ?? '').trim();
 const captchaRequired = String(env.VITE_CAPTCHA_REQUIRED ?? '').trim().toLowerCase();
 const turnstileSiteKey = String(env.VITE_TURNSTILE_SITE_KEY ?? '').trim();
 
-if (mode !== 'false') {
-  console.error('PRODUCTION GUARD FAIL: VITE_DEMO_MODE must be explicitly set to false for a production build.');
-  process.exit(1);
-}
 if (!/^https:\/\/[A-Za-z0-9.-]+\.supabase\.co(?:\/.*)?$/.test(url)) {
   console.error('PRODUCTION GUARD FAIL: VITE_SUPABASE_URL must be a valid HTTPS Supabase project URL.');
   process.exit(1);
@@ -57,7 +52,6 @@ if (!turnstileSiteKey || /YOUR_TURNSTILE_SITE_KEY/i.test(turnstileSiteKey)) {
 }
 
 console.log('PRODUCTION GUARD PASS');
-console.log('Demo mode: false');
 console.log('Supabase URL: configured');
 console.log('Publishable key: configured');
 console.log('Web Push VAPID public key: configured');
