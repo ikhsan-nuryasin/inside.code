@@ -1,4 +1,4 @@
-# Inside Code v1.8.6
+# Inside Code v1.8.7
 
 Production-ready React/Vite PWA for the Inside Code student class platform.
 

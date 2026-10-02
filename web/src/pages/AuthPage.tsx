@@ -8,32 +8,22 @@ import { clearAuthFailures, getAuthLock, recordAuthFailure } from '../lib/auth-g
 import { DEFAULT_APP_SETTINGS, getAppSettings, type AppSettings } from '../lib/app-settings';
 
 type PasswordRules = {
-  length: boolean;
+  length8: boolean;
   lower: boolean;
   upper: boolean;
   number: boolean;
   symbol: boolean;
 };
 
+// Advisory only. Supabase Auth is the authoritative password policy.
 function getPasswordRules(value: string): PasswordRules {
   return {
-    length: value.length >= 12,
+    length8: value.length >= 8,
     lower: /[a-z]/.test(value),
     upper: /[A-Z]/.test(value),
     number: /[0-9]/.test(value),
     symbol: /[^A-Za-z0-9]/.test(value),
   };
-}
-
-function getPasswordPolicyError(value: string): string {
-  const rules = getPasswordRules(value);
-  const missing: string[] = [];
-  if (!rules.length) missing.push('minimal 12 karakter');
-  if (!rules.lower) missing.push('huruf kecil');
-  if (!rules.upper) missing.push('huruf besar');
-  if (!rules.number) missing.push('angka');
-  if (!rules.symbol) missing.push('simbol');
-  return missing.length ? `Password belum memenuhi: ${missing.join(', ')}.` : '';
 }
 
 export function AuthPage({onDone}:{onDone:()=>void}){
@@ -78,6 +68,9 @@ export function AuthPage({onDone}:{onDone:()=>void}){
          if(msg.includes('captcha') || msg.includes('turnstile') || msg.includes('challenge')){
            throw new Error('Verifikasi CAPTCHA gagal. Pastikan CAPTCHA selesai dan konfigurasi Turnstile di Cloudflare/Supabase sudah benar.');
          }
+         if(error.code==='weak_password' || msg.includes('weak password') || msg.includes('password is too weak')){
+           throw new Error('Password akun ditolak oleh kebijakan keamanan Supabase. Gunakan “Lupa password?” untuk membuat password baru yang memenuhi kebijakan server.');
+         }
          if(msg.includes('email not confirmed')){
            setInfo('Email akun belum terverifikasi. Cek inbox email sebelum mencoba masuk kembali.');
            return;
@@ -98,12 +91,19 @@ export function AuthPage({onDone}:{onDone:()=>void}){
        }
        onDone();
      }else{
-       const policyError = getPasswordPolicyError(submittedPassword);
-       if(policyError) throw new Error(policyError);
        if(submittedName.length < 2) throw new Error('Nama lengkap wajib diisi.');
        const {data,error}=await s.auth.signUp({email:submittedEmail,password:submittedPassword,options:{captchaToken:captchaToken||undefined,data:{full_name:submittedName}}});
        if(error){
-         const msg=error.message.toLowerCase();
+         const msg=String(error.message || '').toLowerCase();
+         if(error.code==='weak_password' || msg.includes('weak password') || msg.includes('password is too weak')){
+           throw new Error('Password ditolak oleh kebijakan keamanan Supabase. Coba password yang lebih panjang/kuat dan gunakan kombinasi karakter yang berbeda.');
+         }
+         if(msg.includes('captcha') || msg.includes('turnstile') || msg.includes('challenge')){
+           throw new Error('Verifikasi CAPTCHA gagal. Selesaikan CAPTCHA lalu coba lagi.');
+         }
+         if(error.status===429 || msg.includes('rate limit') || msg.includes('too many requests')){
+           throw new Error('Terlalu banyak percobaan. Coba lagi beberapa saat kemudian.');
+         }
          if(msg.includes('already registered')||msg.includes('already exists')) { setInfo('Jika alamat email dapat digunakan, instruksi pendaftaran/verifikasi akan tersedia di email tersebut.'); return; }
          throw new Error('Pendaftaran tidak dapat diproses saat ini.');
        }
@@ -138,11 +138,11 @@ export function AuthPage({onDone}:{onDone:()=>void}){
      <form onSubmit={submit} className="stack-form">
        {mode==='register'&&<Field label="Nama lengkap"><input name="fullName" autoComplete="name" value={name} onChange={e=>setName(e.target.value)} required placeholder="Nama lengkap" maxLength={150}/></Field>}
        <Field label="Email akun"><input name="email" autoComplete="email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="nama@email.com"/></Field>
-       <Field label="Password"><input name="password" autoComplete={mode==='login'?'current-password':'new-password'} type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={mode==='register'?12:8} placeholder={mode==='register'?'Minimal 12 karakter':'Minimal 8 karakter'}/></Field>
+       <Field label="Password"><input name="password" autoComplete={mode==='login'?'current-password':'new-password'} type="password" value={password} onChange={e=>setPassword(e.target.value)} required placeholder="Masukkan password"/></Field>
        {mode==='register'&&<div className="password-hint" aria-label="Syarat password">
-         <small>Password baru harus memenuhi:</small>
+         <small>Panduan kekuatan password (kebijakan final ditentukan Supabase):</small>
          <div className="password-rules">
-           <span className={registerPasswordRules.length?'valid':''}>{registerPasswordRules.length?'✓':'○'} Minimal 12 karakter</span>
+           <span className={registerPasswordRules.length8?'valid':''}>{registerPasswordRules.length8?'✓':'○'} Minimal 8 karakter sebagai baseline</span>
            <span className={registerPasswordRules.lower?'valid':''}>{registerPasswordRules.lower?'✓':'○'} Huruf kecil</span>
            <span className={registerPasswordRules.upper?'valid':''}>{registerPasswordRules.upper?'✓':'○'} Huruf besar</span>
            <span className={registerPasswordRules.number?'valid':''}>{registerPasswordRules.number?'✓':'○'} Angka</span>
