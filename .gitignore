@@ -2,11 +2,14 @@
 # Inside Code - Git Ignore
 # ============================================
 
-# Environment / secrets
+# Environment files / secrets
+# Root and private env files stay ignored.
 .env
 .env.*
 !.env.example
 !.env.*.example
+# This project intentionally tracks web/.env because it contains only VITE_* browser-public values.
+!web/.env
 
 # Local env files/folders without dot
 env
@@ -104,8 +107,9 @@ __pycache__/
 *.tsbuildinfo
 
 # IMPORTANT
-# Never commit:
-# - .env / .env.local / .env.production
+# Never commit private secrets. The only env file intentionally tracked here is web/.env,
+# and it must contain browser-public VITE_* values only.
+# Never put these secrets in the repository:
 # - Supabase service_role or sb_secret keys
 # - Turnstile secret key
 # - VAPID private key

@@ -40,6 +40,7 @@ export function getCachedAppSettings(): AppSettings {
 
 export async function getAppSettings(): Promise<AppSettings> {
   const cached = getCachedAppSettings();
+
   try {
     const { data, error } = await requireSupabase().from('app_settings').select('id,app_name,short_name,tagline,login_title,login_description,primary_color,logo_url').eq('id', 1).maybeSingle();
     if (error) throw error;
@@ -54,6 +55,7 @@ export async function getAppSettings(): Promise<AppSettings> {
 }
 
 export async function isSystemAdmin(): Promise<boolean> {
+
   try {
     const { data, error } = await requireSupabase().rpc('is_app_admin');
     if (error) throw error;
@@ -78,6 +80,7 @@ async function deleteOldLogo(url: string | null | undefined, keepUrl?: string | 
 
 
 export async function updateAppSettings(payload: Omit<AppSettings, 'id' | 'logo_url'> & { logo_url?: string | null }): Promise<AppSettings> {
+
   const client = requireSupabase();
   const { data: current, error: currentError } = await client.from('app_settings').select('logo_url').eq('id', 1).maybeSingle();
   if (currentError) throw currentError;
@@ -102,6 +105,7 @@ export async function uploadAppLogo(file: File): Promise<string> {
   const allowed = new Set(['image/png', 'image/jpeg', 'image/webp']);
   if (!allowed.has(file.type)) throw new Error('Logo harus PNG, JPG, atau WEBP.');
   if (file.size > 2 * 1024 * 1024) throw new Error('Ukuran logo maksimal 2 MB.');
+
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
   const path = `branding/logo-${crypto.randomUUID()}.${ext}`;
   const storage = requireSupabase().storage.from('app-assets');

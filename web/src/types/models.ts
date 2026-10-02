@@ -46,7 +46,7 @@ export interface RandomizerHistoryRecord { id: UUID; class_id: UUID; created_by:
 export type ClassEventType = 'class'|'presentation'|'exam'|'meeting'|'task_deadline'|'other';
 export interface ClassEvent { id: UUID; class_id: UUID; created_by: UUID; event_type: ClassEventType; title: string; description: string | null; starts_at: string; ends_at: string | null; location: string | null; meeting_url: string | null; pinned: boolean; created_at: string; updated_at: string; class_name?: string; }
 export interface ActivityLog { id: UUID; user_id: UUID | null; class_id: UUID | null; action: string; entity_type: string | null; entity_id: UUID | null; metadata: Record<string, unknown>; created_at: string; }
-export interface SyncQueueItem { operationId: UUID; table: string; entityId: UUID; operation: 'insert' | 'upsert' | 'update' | 'delete'; payload: Record<string, unknown>; status: 'pending' | 'failed' | 'conflict'; attempts: number; lastError?: string; createdAt: number; updatedAt: number; }
+export interface SyncQueueItem { operationId: UUID; userId: UUID; table: string; entityId: UUID; operation: 'insert' | 'upsert' | 'update' | 'delete'; payload: Record<string, unknown>; status: 'pending' | 'failed' | 'conflict'; attempts: number; lastError?: string; createdAt: number; updatedAt: number; }
 export interface SyncEvent { cursor: number; table_name: string; entity_id: UUID | null; changed_at: string; }
 export interface ClassPositionRecord { id: UUID; class_id: UUID; user_id: UUID; position: ClassPosition; assigned_by: UUID; created_at: string; updated_at: string; full_name?: string; nim?: string | null; }
 

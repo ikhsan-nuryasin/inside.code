@@ -15,10 +15,10 @@ import {
   updateForumPost, updateForumTopic, updateGroup, updateGroupTask, updateMaterial, updatePhoto, votePoll, uploadClassFile,
   uploadPhoto, cacheFileOffline, removeOfflineFile, createSharedNote, updateSharedNote, insertAnnouncement, insertClassTask,
   insertSchedule, insertSubject, updateSubject, updateSchedule, deleteSchedule,
+  localDateISO,
 } from '../lib/repository';
 import { currentUserId } from '../lib/repository';
 import { showToast } from '../components/ToastHost';
-import { localDateISO } from '../lib/date';
 import { requestConfirm, requestPrompt } from '../components/DialogHost';
 import type {
   ActivityLog, AdminNote, Album, Announcement, Assignment, AssignmentFile, ChecklistItem, ChecklistProgress, ClassMember, ClassPositionRecord,
@@ -107,17 +107,17 @@ export function ClassPage({classId,initialTab,itemId}:{classId:string;initialTab
 </div>}
 
 <div className="tabbar wide-tabs" role="tablist">{tabs.map(([k,label])=>(k==='secretary'&&!secretary?null:<button role="tab" aria-selected={tab===k} className={tab===k?'active':''} key={k} onClick={()=>goTab(k)}>{label}</button>))}</div>{tab!=='overview'&&<div className="mobile-selected-module-bar"><button onClick={()=>goTab('overview')} aria-label="Kembali ke ringkasan">‹</button><div><strong>{tabs.find(([k])=>k===tab)?.[1]??'Modul'}</strong><small>{klass.class_code} · {klass.name}</small></div><button onClick={()=>setMobileFeatureOpen(true)} aria-label="Pilih modul">☰</button></div>}{error&&<div className="alert alert-danger" role="alert">{error}</div>}
- {tab==='overview'&&<><div className="mobile-class-overview"></div><div className="desktop-class-overview"><Overview klass={klass} tasks={tasks} materials={materials} ann={ann} events={events} activity={activity} canEdit={leadership} form={form} setForm={setForm} save={()=>run(async()=>{await updateClassSafe(classId,form)})}/></div></>} 
+ {tab==='overview'&&<><div className="mobile-class-overview"></div><div className="desktop-class-overview"><Overview klass={klass} tasks={tasks} materials={materials} ann={ann} events={events} activity={activity} canEdit={leadership} form={form} setForm={setForm} save={()=>run(async()=>{await updateClassSafe(classId,form)})}/></div></>}
  {tab==='tasks'&&<TasksPanel classId={classId} tasks={tasks} subs={subs} subjectMap={subjectMap} canManage={leadership} form={form} setForm={setForm} busy={busy} run={run} focusId={itemId} onReload={()=>{setLoaded(v=>{const n=new Set(v);n.delete('tasks');return n});void loadTab('tasks')}}/>}
- {tab==='schedule'&&<SchedulePanel classId={classId} items={sched} canManage={secretary} classMode={klass.delivery_mode} subs={subs} form={form} setForm={setForm} busy={busy} run={run}/>} 
- {tab==='materials'&&<MaterialsPanel classId={classId} items={materials} canManage={secretary} form={form} setForm={setForm} busy={busy} run={run} focusId={itemId}/>} 
- {tab==='announcements'&&<AnnouncementsPanel classId={klass.id} items={ann} canManage={secretary} form={form} setForm={setForm} busy={busy} run={run} focusId={itemId}/>} 
- {tab==='forum'&&<ForumPanel classId={classId} topics={topics} canManage={secretary} run={run} focusId={itemId}/>} 
- {tab==='groups'&&<GroupsPanel classId={classId} groups={groups} members={members} canManageLeadership={leadership} run={run}/>} 
- {tab==='polls'&&<PollsPanel classId={classId} polls={polls} canManage={secretary} run={run} form={form} setForm={setForm}/>} 
- {tab==='files'&&<FilesPanel classId={classId} items={files} run={run}/>} 
- {tab==='shared-notes'&&<SharedNotesPanel classId={classId} notes={sharedNotes} secretary={secretary} run={run} focusId={itemId}/>} 
- {tab==='secretary'&&<SecretaryPanel classId={classId} notes={adminNotes} canManage={secretary} run={run}/>} 
+ {tab==='schedule'&&<SchedulePanel classId={classId} items={sched} canManage={secretary} classMode={klass.delivery_mode} subs={subs} form={form} setForm={setForm} busy={busy} run={run}/>}
+ {tab==='materials'&&<MaterialsPanel classId={classId} items={materials} canManage={secretary} form={form} setForm={setForm} busy={busy} run={run} focusId={itemId}/>}
+ {tab==='announcements'&&<AnnouncementsPanel classId={klass.id} items={ann} canManage={secretary} form={form} setForm={setForm} busy={busy} run={run} focusId={itemId}/>}
+ {tab==='forum'&&<ForumPanel classId={classId} topics={topics} canManage={secretary} run={run} focusId={itemId}/>}
+ {tab==='groups'&&<GroupsPanel classId={classId} groups={groups} members={members} canManageLeadership={leadership} run={run}/>}
+ {tab==='polls'&&<PollsPanel classId={classId} polls={polls} canManage={secretary} run={run} form={form} setForm={setForm}/>}
+ {tab==='files'&&<FilesPanel classId={classId} items={files} run={run}/>}
+ {tab==='shared-notes'&&<SharedNotesPanel classId={classId} notes={sharedNotes} secretary={secretary} run={run} focusId={itemId}/>}
+ {tab==='secretary'&&<SecretaryPanel classId={classId} notes={adminNotes} canManage={secretary} run={run}/>}
  {!['overview','tasks','schedule','materials','announcements','forum','groups','polls','files','shared-notes','secretary'].includes(tab)&&null}
  </div>;
 }

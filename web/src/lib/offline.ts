@@ -114,9 +114,12 @@ export async function queuePush(item: SyncQueueItem) {
   await put('queue', item);
   syncChannel?.postMessage({ type: 'queue-changed' });
 }
-export async function queueAll() { return (await all<SyncQueueItem>('queue')).sort((a, b) => a.createdAt - b.createdAt); }
-export async function queueRetry(operationId: string) {
-  const current = await queueAll();
+export async function queueAll(userId?: string | null) {
+  const rows = (await all<SyncQueueItem>('queue')).sort((a, b) => a.createdAt - b.createdAt);
+  return userId ? rows.filter(item => item.userId === userId) : rows;
+}
+export async function queueRetry(operationId: string, userId?: string | null) {
+  const current = await queueAll(userId);
   const item = current.find(x => x.operationId === operationId);
   if (!item) return;
   await queuePush({ ...item, status: 'pending', attempts: 0, lastError: '', updatedAt: Date.now() });

@@ -1,74 +1,60 @@
-# Inside Code
+# Inside Code v1.8.15
 
-Inside Code adalah PWA mobile-first untuk workspace kelas mahasiswa.
+Aplikasi kelas mahasiswa berbasis React + Vite + Supabase + Cloudflare Workers.
 
-## Fitur utama
+## Prasyarat
+- Node.js >= 20.19
+- Project Supabase aktif
+- Cloudflare account untuk deployment Worker/Pages
 
-- Dashboard kelas
-- Jadwal dan kalender
-- Tugas + checklist + progress
-- Materi dan file
-- Forum kelas
-- Kelompok dan pembagian ketua
-- Kas kelas
-- Dokumentasi/album
-- Catatan pribadi dan catatan bersama
-- Pengumuman dan notifikasi
-- Web Push
-- CAPTCHA/Turnstile
-- MFA/TOTP
-- Offline cache dan sinkronisasi saat online kembali
-- Pengaturan branding aplikasi untuk system admin
+## Konfigurasi
+File browser-public deployment sudah disediakan di `web/.env`.
 
-## Stack
+Isi yang boleh berada di `web/.env` hanya nilai client/public dengan prefix `VITE_`:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_PUBLISHABLE_KEY`
+- `VITE_VAPID_PUBLIC_KEY`
+- `VITE_CAPTCHA_REQUIRED`
+- `VITE_TURNSTILE_SITE_KEY`
 
-- React + TypeScript + Vite
-- Supabase Auth + Postgres + Storage + Edge Functions
-- Cloudflare Workers Assets
-- IndexedDB untuk cache/queue/file offline
+Jangan pernah menambahkan `service_role`, `sb_secret`, password database, VAPID private key, Turnstile secret, atau webhook secret ke file yang masuk frontend.
 
-## Struktur
-
-```text
-web/                    Frontend PWA
-supabase/migrations/    Database schema, RLS, function, trigger, policy
-supabase/functions/     Edge Functions
-supabase/email-templates/  Template email Auth
-docs/                   Dokumentasi deployment dan security
-.github/workflows/      Automation deployment Supabase
-```
-
-## Local development
-
-Buat `web/.env` dari `web/.env.example`, isi nilai production/test milik proyek Supabase, lalu:
-
-```powershell
+## Jalankan lokal
+```bash
 cd web
-npm install
-npm run typecheck
-npm run build
+npm ci
 npm run dev
 ```
 
-Aplikasi tidak memiliki Demo Mode. Environment Supabase harus tersedia agar aplikasi dapat melakukan autentikasi dan membaca data.
-
-## Production deployment
-
-Frontend memakai Cloudflare Workers/Assets. Database dan Edge Function memakai Supabase.
-
-```text
-Cloudflare Build root: web
-Build command: npm install --include=dev --no-audit --no-fund && npm run build
-Deploy command: npx wrangler deploy
+## Build production
+```bash
+cd web
+npm ci
+npm run build
+npm run preview
 ```
 
-Lihat:
+## Deploy Cloudflare
+```bash
+cd web
+npm ci
+npm run build
+npx wrangler deploy
+```
 
-- `docs/DEPLOYMENT.md`
-- `docs/SECURITY.md`
+`web/wrangler.jsonc` sudah menunjuk ke `dist` dan menggunakan SPA fallback.
 
-## Supabase migrations
+## Deploy Supabase
+Migration berjalan berurutan dari folder `supabase/migrations/` melalui GitHub Actions.
+Tambahkan secrets repository:
+- `SUPABASE_ACCESS_TOKEN`
+- `SUPABASE_DB_PASSWORD`
 
-Migration terbaru pada source ini adalah `034_restore_rls_helper_exec_and_fix_app_admin.sql`.
+Workflow akan melakukan `supabase db push` dan deploy Edge Function push notification.
 
-Jangan mengubah migration yang sudah pernah diterapkan di project production. Untuk koreksi berikutnya, tambahkan migration baru secara berurutan.
+## Struktur penting
+- `web/src/` — frontend
+- `web/public/` — aset publik dan service worker
+- `supabase/migrations/` — database/RLS
+- `supabase/functions/` — Edge Functions
+- `.github/workflows/` — deployment automation

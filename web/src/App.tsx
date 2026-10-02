@@ -114,9 +114,9 @@ export default function App() {
   }, []);
 
   if (!ready) return <div className="loading-screen"><div className="spinner" /><strong>Menyiapkan Inside Code…</strong></div>;
-  if (!SUPABASE_CONFIGURED) return <div className="loading-screen"><div className="card" style={{ maxWidth: 520 }}><strong>Konfigurasi Supabase belum lengkap.</strong><p className="muted">Isi VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY di web/.env.local, lalu restart server.</p></div></div>;
+  if (!SUPABASE_CONFIGURED) return <div className="loading-screen"><div className="card" style={{ maxWidth: 520 }}><strong>Konfigurasi Supabase belum lengkap.</strong><p className="muted">Isi VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY di web/.env, lalu restart server.</p></div></div>;
   if (route.name === 'update-password') return <UpdatePasswordPage onDone={() => { nav('/dashboard'); location.reload(); }} />;
   if (!signedIn) return <AuthPage onDone={() => setSignedIn(true)} />;
   if (supabase) return <MfaGateApp route={route} setSignedIn={setSignedIn} />;
-  return <div className="loading-screen"><div className="card"><strong>Supabase belum tersedia.</strong><p className="muted">Periksa konfigurasi environment lalu muat ulang aplikasi.</p></div></div>;
+  return <div className="loading-screen"><div className="card"><strong>Supabase belum siap.</strong><p className="muted">Periksa VITE_SUPABASE_URL dan VITE_SUPABASE_PUBLISHABLE_KEY.</p></div></div>;
 }

@@ -155,7 +155,6 @@ input,select,textarea{color:var(--ink)}
 .tabs button.active{background:var(--blue);color:#fff;box-shadow:0 7px 16px rgba(8,124,249,.16)}
 .inline-link{color:var(--blue)}
 
-
 .mobile-nav{display:none}
 .mobile-more-backdrop{display:none}
 
@@ -2559,7 +2558,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .password-rules span.valid{color:var(--success,#16845b);}
 @media (max-width:680px){.password-rules{grid-template-columns:1fr;}}
 
-/* V1.8.13: clear authentication/application notification popups */
+/* Authentication/application notification popup cleanup */
 .toast-stack{position:fixed;left:50%;right:auto;top:82px;bottom:auto;transform:translateX(-50%);z-index:300;width:min(520px,calc(100vw - 32px));display:grid;gap:12px;pointer-events:none}
 .app-toast{position:relative;display:grid;grid-template-columns:44px minmax(0,1fr) 32px;align-items:start;gap:12px;box-sizing:border-box;width:100%;padding:15px 16px 18px;border:1px solid #dbe6ef;border-radius:18px;background:#fff;box-shadow:0 24px 60px rgba(17,45,70,.18);font-size:14px;color:#29455d;pointer-events:auto;animation:inside-code-popup-in .22s ease-out}
 .toast-copy{min-width:0}.toast-copy strong{display:block;margin-bottom:5px;font-size:15px;line-height:1.25;color:#173957}.toast-copy p{margin:0;font-size:13px;line-height:1.55;color:#5d7489;overflow-wrap:anywhere}
