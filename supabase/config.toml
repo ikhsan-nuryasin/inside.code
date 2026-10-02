@@ -1,2 +1,7 @@
 [functions.send-notification-push]
 verify_jwt = false
+
+# The hosted project is configured from Supabase Dashboard.
+# The email template files in `supabase/email-templates/` are also ready
+# for local/self-hosted Supabase configuration. Hosted projects should use
+# Authentication → Email Templates or the included Management API helper.
