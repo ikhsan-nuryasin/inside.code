@@ -30,13 +30,14 @@ jobs:
         with:
           version: latest
 
-      - name: Verify migration 012 fix
+      - name: Verify critical migrations
         shell: bash
         run: |
           grep -q "to_regprocedure('public.create_class(text, text, integer, text, text)')" \
             supabase/migrations/012_disable_legacy_class_creation.sql
+          test -f supabase/migrations/031_normalize_legacy_branding.sql
 
-      - name: Push database migrations (001-030)
+      - name: Push database migrations (001-031)
         run: |
           printf 'y\n' | supabase db push \
             --project-ref "$SUPABASE_PROJECT_ID" \
