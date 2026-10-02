@@ -35,7 +35,7 @@ export function loadTurnstileScript(): Promise<void> {
   if (window.turnstile) return Promise.resolve();
   if (window.__insideCodeTurnstilePromise) return window.__insideCodeTurnstilePromise;
 
-  window.__insideCodeTurnstilePromise = new Promise((resolve, reject) => {
+  const promise = new Promise<void>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>('script[data-inside-code-turnstile], script[src^="https://challenges.cloudflare.com/turnstile/v0/api.js"]');
     const startedAt = Date.now();
 
@@ -73,7 +73,8 @@ export function loadTurnstileScript(): Promise<void> {
     throw error;
   });
 
-  return window.__insideCodeTurnstilePromise;
+  window.__insideCodeTurnstilePromise = promise;
+  return promise;
 }
 
 export function resetTurnstile(widgetId: string | number | null | undefined): void {

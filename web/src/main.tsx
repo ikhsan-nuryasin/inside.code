@@ -13,8 +13,11 @@ if('serviceWorker' in navigator && import.meta.env.PROD){
   };
 
   window.addEventListener('inside-code-sw-check',()=>{
-    void (registration ?? navigator.serviceWorker.ready)
-      .then(reg=>{
+    const readyRegistration = registration
+      ? Promise.resolve(registration)
+      : navigator.serviceWorker.ready;
+    void readyRegistration
+      .then((reg: ServiceWorkerRegistration)=>{
         registration = reg;
         return reg.update();
       })
