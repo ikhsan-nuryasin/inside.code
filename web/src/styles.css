@@ -2553,3 +2553,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .mobile-pills .active,.cash-month-strip button.active{background:var(--blue,#087cf9)!important;border-color:var(--blue,#087cf9)!important}
 .progress-line i,.activity-dot{background:var(--blue,#087cf9)!important}
 .captcha-warning{padding:7px 9px;border-radius:10px;background:#fff8e8;color:#7a5a14}
+
+.password-hint{display:grid;gap:6px;margin-top:-6px;color:var(--muted,#6f7f95);}
+.password-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 12px;font-size:12px;}
+.password-rules span{color:var(--muted,#6f7f95);}
+.password-rules span.valid{color:var(--success,#16845b);}
+@media (max-width:680px){.password-rules{grid-template-columns:1fr;}}

@@ -1,20 +1,13 @@
 # Inside Code Changelog
 
-## 1.8.4
+## 1.8.6
+- Fixed registration/login to validate the actual submitted form values, including browser/password-manager autofill values.
+- Added named form fields and a shared password policy check so the live checklist and submit validation use the same source.
+- Password errors now identify the unmet requirements instead of falsely rejecting a valid password because React state was stale.
 
-- Added database security hardening migration `030_security_hardening.sql`.
-- Pinned missing TypeScript type dependency versions.
-- Standardized repository line endings with `.gitattributes`.
-- Removed historical repair notes and duplicated deployment documentation.
-- Removed unused nested `web/public/icons/icon.svg` asset and its Service Worker precache entry.
-- Consolidated deployment/security documentation under `docs/`.
-
-## 1.8.3
-
-- Inside Code branding and admin branding settings.
-- Cloudflare Turnstile SPA handling and visible retry/error states.
-- Login error classification improvements.
-- Notification deep-link normalization.
-- Web Push `fail_count` fix.
-- Storage branding hardening and assignment reminder scheduler.
-- Supabase migration repairs for migrations 012 and 015.
+## 1.8.5
+- Fixed the stray `0` on auth when the login lock is inactive.
+- Added live registration password requirement indicators.
+- Normalized legacy `Student Hub` database branding to `Inside Code` without overwriting custom branding.
+- Bumped Service Worker cache to 1.8.5.
+- Supabase deployment continues to use `SUPABASE_ACCESS_TOKEN` and `SUPABASE_DB_PASSWORD`.

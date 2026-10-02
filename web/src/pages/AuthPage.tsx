@@ -7,6 +7,35 @@ import { CAPTCHA_REQUIRED, CAPTCHA_CONFIGURED } from '../lib/captcha';
 import { clearAuthFailures, getAuthLock, recordAuthFailure } from '../lib/auth-guard';
 import { DEFAULT_APP_SETTINGS, getAppSettings, type AppSettings } from '../lib/app-settings';
 
+type PasswordRules = {
+  length: boolean;
+  lower: boolean;
+  upper: boolean;
+  number: boolean;
+  symbol: boolean;
+};
+
+function getPasswordRules(value: string): PasswordRules {
+  return {
+    length: value.length >= 12,
+    lower: /[a-z]/.test(value),
+    upper: /[A-Z]/.test(value),
+    number: /[0-9]/.test(value),
+    symbol: /[^A-Za-z0-9]/.test(value),
+  };
+}
+
+function getPasswordPolicyError(value: string): string {
+  const rules = getPasswordRules(value);
+  const missing: string[] = [];
+  if (!rules.length) missing.push('minimal 12 karakter');
+  if (!rules.lower) missing.push('huruf kecil');
+  if (!rules.upper) missing.push('huruf besar');
+  if (!rules.number) missing.push('angka');
+  if (!rules.symbol) missing.push('simbol');
+  return missing.length ? `Password belum memenuhi: ${missing.join(', ')}.` : '';
+}
+
 export function AuthPage({onDone}:{onDone:()=>void}){
  const [mode,setMode]=useState<'login'|'register'>('login');
  const [name,setName]=useState(''); const [email,setEmail]=useState(''); const [password,setPassword]=useState('');
@@ -19,17 +48,28 @@ export function AuthPage({onDone}:{onDone:()=>void}){
  useEffect(()=>{if(!lockedUntil)return;const id=window.setInterval(()=>{const next=getAuthLock(email.trim().toLowerCase());setLockedUntil(next);if(!next)window.clearInterval(id)},1000);return()=>window.clearInterval(id)},[lockedUntil,email]);
  const handleCaptcha=useCallback((token:string)=>setCaptchaToken(token),[]);
  const switchMode=(next:'login'|'register')=>{setMode(next);setError('');setInfo('');setCaptchaToken('');setCaptchaReset(v=>v+1);};
- const submit=async(e:FormEvent)=>{
+ const registerPasswordRules = getPasswordRules(password);
+ const submit=async(e:FormEvent<HTMLFormElement>)=>{
    e.preventDefault(); setBusy(true); setError(''); setInfo('');
-   const normalizedEmail=email.trim().toLowerCase();
+
+   // Read the submitted DOM form values, not only React state. This prevents
+   // browser/password-manager autofill from validating a stale state value.
+   const formData = new FormData(e.currentTarget);
+   const submittedName = String(formData.get('fullName') ?? '').trim();
+   const submittedEmail = String(formData.get('email') ?? '').trim().toLowerCase();
+   const submittedPassword = String(formData.get('password') ?? '');
+   setName(submittedName);
+   setEmail(submittedEmail);
+   setPassword(submittedPassword);
+
    try{
      if(DEMO_MODE){ onDone(); nav('/dashboard'); return; }
-     const lock=getAuthLock(normalizedEmail); if(lock){setLockedUntil(lock); throw new Error(`Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil((lock-Date.now())/60000)} menit.`)}
+     const lock=getAuthLock(submittedEmail); if(lock){setLockedUntil(lock); throw new Error(`Terlalu banyak percobaan. Coba lagi dalam ${Math.ceil((lock-Date.now())/60000)} menit.`)}
      if(CAPTCHA_REQUIRED && !CAPTCHA_CONFIGURED) throw new Error('CAPTCHA belum dikonfigurasi di build production. Hubungi administrator.');
      if(CAPTCHA_REQUIRED && !captchaToken) throw new Error('Selesaikan verifikasi keamanan terlebih dahulu.');
      const s=requireSupabase();
      if(mode==='login'){
-       const {data,error}=await s.auth.signInWithPassword({email:normalizedEmail,password,options:{captchaToken:captchaToken||undefined}});
+       const {data,error}=await s.auth.signInWithPassword({email:submittedEmail,password:submittedPassword,options:{captchaToken:captchaToken||undefined}});
        if(error){
          const msg = String(error.message || '').toLowerCase();
          if(error.status===429 || msg.includes('rate limit') || msg.includes('too many requests')){
@@ -46,11 +86,11 @@ export function AuthPage({onDone}:{onDone:()=>void}){
          if(!invalidCredentials){
            throw new Error('Layanan login sedang bermasalah. Silakan coba lagi beberapa saat.');
          }
-         const locked=recordAuthFailure(normalizedEmail);
+         const locked=recordAuthFailure(submittedEmail);
          if(locked){setLockedUntil(locked);throw new Error('Terlalu banyak percobaan login gagal. Akun/perangkat dikunci sementara.');}
          throw new Error('Email atau password salah.');
        }
-       clearAuthFailures(normalizedEmail);
+       clearAuthFailures(submittedEmail);
        if(!data.user?.email_confirmed_at){
          await s.auth.signOut({scope:'local'}).catch(()=>{});
          setInfo('Email akun belum terverifikasi. Cek inbox email sebelum mencoba masuk kembali.');
@@ -58,16 +98,16 @@ export function AuthPage({onDone}:{onDone:()=>void}){
        }
        onDone();
      }else{
-       if(password.length < 12) throw new Error('Untuk akun baru, gunakan password minimal 12 karakter.');
-       if(!/[a-z]/.test(password)||!/[A-Z]/.test(password)||!/[0-9]/.test(password)||!/[^A-Za-z0-9]/.test(password)) throw new Error('Password harus mengandung huruf besar, huruf kecil, angka, dan simbol.');
-       if(name.trim().length < 2) throw new Error('Nama lengkap wajib diisi.');
-       const {data,error}=await s.auth.signUp({email:normalizedEmail,password,options:{captchaToken:captchaToken||undefined,data:{full_name:name.trim()}}});
+       const policyError = getPasswordPolicyError(submittedPassword);
+       if(policyError) throw new Error(policyError);
+       if(submittedName.length < 2) throw new Error('Nama lengkap wajib diisi.');
+       const {data,error}=await s.auth.signUp({email:submittedEmail,password:submittedPassword,options:{captchaToken:captchaToken||undefined,data:{full_name:submittedName}}});
        if(error){
          const msg=error.message.toLowerCase();
          if(msg.includes('already registered')||msg.includes('already exists')) { setInfo('Jika alamat email dapat digunakan, instruksi pendaftaran/verifikasi akan tersedia di email tersebut.'); return; }
          throw new Error('Pendaftaran tidak dapat diproses saat ini.');
        }
-       clearAuthFailures(normalizedEmail);
+       clearAuthFailures(submittedEmail);
        if(data.session && data.user?.email_confirmed_at){onDone();}else setInfo('Akun dibuat. Cek email untuk verifikasi sebelum login.');
      }
    }catch(err){setError(err instanceof Error?err.message:'Terjadi kesalahan.');}
@@ -96,13 +136,22 @@ export function AuthPage({onDone}:{onDone:()=>void}){
      <div className="tabs"><button className={mode==='login'?'active':''} onClick={()=>switchMode('login')}>Masuk</button><button className={mode==='register'?'active':''} onClick={()=>switchMode('register')}>Daftar</button></div>
      <div className="auth-card-head"><h2>{mode==='login'?'Selamat datang kembali':`Buat akun ${appSettings.app_name}`}</h2><p>{mode==='login'?'Gunakan email dan password akun kamu.':'Daftar dengan email aktif yang bisa kamu verifikasi.'}</p></div>
      <form onSubmit={submit} className="stack-form">
-       {mode==='register'&&<Field label="Nama lengkap"><input autoComplete="name" value={name} onChange={e=>setName(e.target.value)} required placeholder="Nama lengkap" maxLength={150}/></Field>}
-       <Field label="Email akun"><input autoComplete="email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="nama@email.com"/></Field>
-       <Field label="Password"><input autoComplete={mode==='login'?'current-password':'new-password'} type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={mode==='register'?12:8} placeholder={mode==='register'?'Minimal 12 karakter':'Minimal 8 karakter'}/></Field>
-       {mode==='register'&&<small className="password-hint">Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol. Jangan gunakan password dari layanan lain.</small>}
+       {mode==='register'&&<Field label="Nama lengkap"><input name="fullName" autoComplete="name" value={name} onChange={e=>setName(e.target.value)} required placeholder="Nama lengkap" maxLength={150}/></Field>}
+       <Field label="Email akun"><input name="email" autoComplete="email" type="email" value={email} onChange={e=>setEmail(e.target.value)} required placeholder="nama@email.com"/></Field>
+       <Field label="Password"><input name="password" autoComplete={mode==='login'?'current-password':'new-password'} type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength={mode==='register'?12:8} placeholder={mode==='register'?'Minimal 12 karakter':'Minimal 8 karakter'}/></Field>
+       {mode==='register'&&<div className="password-hint" aria-label="Syarat password">
+         <small>Password baru harus memenuhi:</small>
+         <div className="password-rules">
+           <span className={registerPasswordRules.length?'valid':''}>{registerPasswordRules.length?'✓':'○'} Minimal 12 karakter</span>
+           <span className={registerPasswordRules.lower?'valid':''}>{registerPasswordRules.lower?'✓':'○'} Huruf kecil</span>
+           <span className={registerPasswordRules.upper?'valid':''}>{registerPasswordRules.upper?'✓':'○'} Huruf besar</span>
+           <span className={registerPasswordRules.number?'valid':''}>{registerPasswordRules.number?'✓':'○'} Angka</span>
+           <span className={registerPasswordRules.symbol?'valid':''}>{registerPasswordRules.symbol?'✓':'○'} Simbol</span>
+         </div>
+       </div>}
        {mode==='login'&&<button type="button" className="inline-link" onClick={()=>void reset()}>Lupa password?</button>}
-       {!DEMO_MODE&&<TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>}
-       {lockedUntil&&<div className="alert alert-warning" role="alert">Login sementara dikunci. Coba lagi sekitar {remainingMinutes} menit.</div>}
+       {!DEMO_MODE&&<TurnstileCaptcha onToken={handleCaptcha} resetKey={captchaReset} action={mode==='login'?'login':'signup'}/>} 
+       {lockedUntil > 0 && <div className="alert alert-warning" role="alert">Login sementara dikunci. Coba lagi sekitar {remainingMinutes} menit.</div>}
        {error&&<div className="alert alert-danger" role="alert">{error}</div>}
        {info&&<div className="alert alert-info" role="status">{info}</div>}
        <Button type="submit" disabled={busy||Boolean(lockedUntil)}>{busy?'Memproses…':mode==='login'?'Masuk':'Buat akun'}</Button>
