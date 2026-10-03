@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Inside Code MyBest Sync",
+  "version": "1.0.0",
+  "description": "Mengimpor data halaman MyBest yang sedang dibuka ke Inside Code menggunakan kode sinkron sekali pakai.",
+  "permissions": ["activeTab", "scripting", "storage"],
+  "host_permissions": [
+    "https://elearning.bsi.ac.id/*",
+    "https://nxjwctumtkgcyghuzfwm.supabase.co/*"
+  ],
+  "action": {
+    "default_title": "Inside Code MyBest Sync",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://elearning.bsi.ac.id/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inside Code MyBest Sync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <h1>MyBest Sync</h1>
+    <p class="muted">Login sendiri di MyBest, lalu buka halaman yang ingin disimpan.</p>
+    <label>Kode sinkron</label>
+    <input id="token" autocomplete="off" spellcheck="false" placeholder="64 karakter hex">
+    <label>Supabase Project URL</label>
+    <input id="supabaseUrl" value="https://nxjwctumtkgcyghuzfwm.supabase.co" autocomplete="off">
+    <button id="sync">Sinkronkan halaman ini</button>
+    <button id="clear" class="secondary">Hapus kode tersimpan</button>
+    <pre id="status" aria-live="polite"></pre>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

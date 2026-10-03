@@ -11,7 +11,7 @@ import { DialogHost } from './DialogHost';
 import { DEFAULT_APP_SETTINGS, getAppSettings, isSystemAdmin, type AppSettings } from '../lib/app-settings';
 
 const baseNav=[
-  ['dashboard','Dashboard','home'],['admin','Admin','settings'],['classes','Kelas','grid'],['tasks','Tugas','check'],['calendar','Jadwal','calendar'],['notes','Catatan','note'],['documentation','Dokumentasi','image'],['cash','Kas','wallet'],['notifications','Notifikasi','bell'],['positions','Jabatan','users'],['randomizer','Randomizer','spark'],['search','Cari','search'],['help','Bantuan','help'],['quick-messages','Pesan Cepat','message'],['security','Keamanan','shield'],['settings','Pengaturan','settings']
+  ['dashboard','Dashboard','home'],['admin','Admin','settings'],['classes','Kelas','grid'],['tasks','Tugas','check'],['calendar','Jadwal','calendar'],['mybest','MyBest','note'],['notes','Catatan','note'],['documentation','Dokumentasi','image'],['cash','Kas','wallet'],['notifications','Notifikasi','bell'],['positions','Jabatan','users'],['randomizer','Randomizer','spark'],['search','Cari','search'],['help','Bantuan','help'],['quick-messages','Pesan Cepat','message'],['security','Keamanan','shield'],['settings','Pengaturan','settings']
 ] as const;
 
 type IconName = typeof baseNav[number][2] | 'more';

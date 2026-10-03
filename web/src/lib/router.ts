@@ -8,7 +8,7 @@ export function clearActiveClassId(){ localStorage.removeItem(ACTIVE_CLASS_KEY);
 export function openClassModule(classId:string, path:string){ setActiveClassId(classId); nav(path); }
 
 export type Route =
-  | { name:'dashboard' } | { name:'classes' } | { name:'tasks' } | { name:'calendar' } | { name:'notes' }
+  | { name:'dashboard' } | { name:'classes' } | { name:'tasks' } | { name:'calendar' } | { name:'mybest' } | { name:'notes' }
   | { name:'notifications' } | { name:'cash' } | { name:'documentation' } | { name:'positions' } | { name:'security' } | { name:'admin' }
   | { name:'randomizer' } | { name:'search' } | { name:'help' } | { name:'quick-messages' } | { name:'settings' } | { name:'update-password' } | { name:'class'; classId:string; tab?:string; itemId?:string };
 
@@ -24,7 +24,7 @@ function parse(): Route {
   }
   if (p[0] === 'search') return { name:'search' };
   if (p[0] === 'update-password') return { name:'update-password' };
-  const names: Route['name'][] = ['dashboard','classes','tasks','calendar','notes','notifications','cash','documentation','positions','randomizer','search','help','quick-messages','settings','security','admin'];
+  const names: Route['name'][] = ['dashboard','classes','tasks','calendar','mybest','notes','notifications','cash','documentation','positions','randomizer','search','help','quick-messages','settings','security','admin'];
   if (names.includes(p[0] as Route['name'])) return { name:p[0] as Exclude<Route,{name:'class'}>['name'] };
   return { name:'dashboard' };
 }

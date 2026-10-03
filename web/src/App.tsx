@@ -8,6 +8,7 @@ import { CalendarPage } from './pages/CalendarPage';
 import { NotesPage } from './pages/NotesPage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { MyBestPage } from './pages/MyBestPage';
 import { ClassPage } from './pages/ClassPage';
 import { CashPage } from './pages/CashPage';
 import { DocumentationPage } from './pages/DocumentationPage';
@@ -41,6 +42,7 @@ function renderPage(route: Route): ReactNode {
     case 'help': return <HelpPage />;
     case 'quick-messages': return <QuickMessagesPage />;
     case 'settings': return <SettingsPage />;
+    case 'mybest': return <MyBestPage />;
     case 'security': return <SecurityPage />;
     case 'admin': return <AdminSettingsPage />;
     case 'class': return <ClassPage classId={route.classId} initialTab={route.tab} itemId={route.itemId} />;
