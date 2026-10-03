@@ -40,8 +40,15 @@ export function TurnstileCaptcha({ onToken, resetKey = 0, action = 'login' }: Pr
       try {
         await loadTurnstileScript();
         if (cancelled || !containerRef.current || !window.turnstile) return;
-        try { window.turnstile.remove?.(widgetIdRef.current ?? undefined); } catch { /* ignore cleanup failure */ }
+        const existingWidgetId = widgetIdRef.current;
         widgetIdRef.current = null;
+        if (existingWidgetId !== null && existingWidgetId !== undefined) {
+          try {
+            window.turnstile.remove?.(existingWidgetId);
+          } catch {
+            /* Ignore cleanup failures from a widget that is already gone. */
+          }
+        }
         containerRef.current.innerHTML = '';
 
         widgetIdRef.current = window.turnstile.render(containerRef.current, {

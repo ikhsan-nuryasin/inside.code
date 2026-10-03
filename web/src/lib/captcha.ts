@@ -11,8 +11,8 @@ export type TurnstileWidget = {
     action?: string;
     'refresh-expired'?: 'auto' | 'manual';
   }) => string | number;
-  reset: (widgetId?: string | number) => void;
-  remove?: (widgetId?: string | number) => void;
+  reset: (widgetId: string | number) => void;
+  remove?: (widgetId: string | number) => void;
 };
 
 declare global {
